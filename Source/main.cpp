@@ -116,7 +116,7 @@ int main() {
     //screen initialisation
     const int WIDTH = 800;
     const int HEIGHT = 600;
-    InitWindow(WIDTH, HEIGHT, "raylib player example");
+    InitWindow(WIDTH, HEIGHT, "Fast Conways Game of Life");
     SetTargetFPS(60);
 
     //variable initialisation
