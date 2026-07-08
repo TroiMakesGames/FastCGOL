@@ -2,7 +2,7 @@
 #include <vector>       //includes type dynamic arrays called vectors in c++
 #include <iostream>     //console logging
 #include <cmath>        //math stuff like floor()
-#include <random>
+#include <random>       //random
 
 //set randomness stuff
 std::random_device rd;
@@ -23,6 +23,13 @@ class Grid
         int screenWidth;
         int screenHeight;
 
+        //neighboring coords
+        const Vector2 neighbors[8] = {
+            {-1, -1}, { 0, -1}, { 1, -1},
+            {-1,  0},           { 1,  0},
+            {-1,  1}, { 0,  1}, { 1,  1}
+        };
+
     public:
     // constructor with parameters
     Grid(int screenWidth, int screenHeight, int cellSize) {
@@ -37,78 +44,75 @@ class Grid
         //resize grid array
         int totalCells = worldWidth * worldHeight;
         grid.resize(totalCells);
+
+        //set random values for start
+        for (int i = 0; i < totalCells; i++)
+        {grid[i] = std::uniform_int_distribution<int>(0, 1)(gen);}
     }
 
-    // general functions
-    void updateGrid() {
-        //create a new empty grid
-        std::vector<int> newGrid;
-        newGrid.resize(worldWidth * worldHeight);
+    //2D coordinate to 1D index
+    int coordToInt(Vector2 coord)
+    {return worldWidth * coord.y + coord.x;}
+    
+    //1D index to 2D coordinate
+    Vector2 intToCoord(int i)
+    {return Vector2(i % worldWidth, i / worldWidth);}
 
-        //loop through cells
-        for (int i = 0; i < grid.size(); i++)
-        {   
-            // SAND --------------------------------------------------------------------
+    void draw() {
+        for (int i = 0; i < worldWidth * worldHeight; i++)
+        {
             if (grid[i] == 1)
             {
-                //default to keeping the sand in the same position if its not moved in the future
-                newGrid[i] = 1;
+                Vector2 coord = intToCoord(i);
+                DrawRectangle(cellSize * coord.x, cellSize * coord.y, cellSize, cellSize, Color{255, 255, 255, 255});
+            }
+        }
+    }
 
-                int x = i % worldWidth;
-                int y = i / worldWidth;
-                
-                //check if on the last row
-                if (y < worldHeight - 1)
-                {
-                    //down
-                    if (grid[i + worldWidth] == 0)
-                    {
-                        newGrid[i] = 0;
-                        newGrid[i + worldWidth] = 1;
-                    }
-                    //down left
-                    else if (x > 0 && grid[i + worldWidth - 1] == 0 && grid[i + worldWidth + 1] == 1)
-                    {
-                        newGrid[i] = 0;
-                        newGrid[i + worldWidth - 1] = 1;
-                    }
-                    //down right
-                    else if (x < worldWidth - 1 && grid[i + worldWidth + 1] == 0 && grid[i + worldWidth - 1] == 1)
-                    {
-                        newGrid[i] = 0;
-                        newGrid[i + worldWidth + 1] = 1;
-                    }
-                    //both open
-                    else if (x > 0 && x < worldWidth - 1 && grid[i + worldWidth - 1] == 0 && grid[i + worldWidth + 1] == 0)
-                    {
-                        //choose a random side
-                        int choice = std::uniform_int_distribution<int>(0, 1)(gen);
+    void updateGrid()
+    {
+        //create new array full of 0 integers
+        std::vector<int> newGrid(worldWidth * worldHeight, 0);
 
-                        newGrid[i] = 0;
+        //check each cell
+        for (int i = 0; i < worldWidth * worldHeight; i++)
+        {
+            int liveCount = 0;
+            for (int j = 0; j < 8; j++)
+            {
+                //get neighboring coord
+                Vector2 coord = intToCoord(i);
+                coord.x += neighbors[j].x;
+                coord.y += neighbors[j].y;
+                int neighboringIndex = coordToInt(coord);
 
-                        if (choice == 1)
-                        {newGrid[i + worldWidth + 1] = 1;}
-                        else
-                        {newGrid[i + worldWidth - 1] = 1;}
-                    }
-                }
+                //check if coord within world
+                if (coord.x < 0 || coord.x > worldWidth - 1 || coord.y < 0 || coord.y > worldHeight - 1)
+                {break;}
+
+                if (grid[neighboringIndex] == 1)
+                {liveCount += 1;}
+            }
+
+            //check for rules
+            if (grid[i] == 1)
+            {
+                if (liveCount < 2)
+                {newGrid[i] = 0;}
+                else if (liveCount == 2 || liveCount == 3)
+                {newGrid[i] = 1;}
+                else if (liveCount > 3)
+                {newGrid[i] = 0;}
+            }
+            else if (grid[i] == 0)
+            {
+                if (liveCount == 3)
+                {newGrid[i] = 1;}
             }
         }
 
-        //override old grid with new
+        //update current grid
         grid = newGrid;
-    }
-
-    void draw() {
-        //1D grid array
-        for (int i = 0; i < worldWidth * worldHeight; i++)
-        {
-            int y = i / worldWidth;
-            int x = i % worldWidth;
-
-            if (grid[worldWidth * y + x] == 1)
-            {DrawRectangle(cellSize * x, cellSize * y, cellSize, cellSize, Color{255, 255, 0, 255});}
-        }
     }
 };
 
@@ -123,7 +127,7 @@ int main() {
 
     int cellSize = 1;
     Grid grid = Grid(WIDTH, HEIGHT, cellSize);
-    //grid.grid[grid.worldWidth * 5 + 10] = 1;
+    //grid.grid[grid.worldWidth * 7 + 11] = 1;
 
     //while loop
     while (!WindowShouldClose()) {
@@ -131,19 +135,15 @@ int main() {
         // update
         grid.updateGrid();
 
-        //debug num of sand particles
-        int count = 0;
-        for (int i = 0; i < grid.grid.size(); i++)
-        {if (grid.grid[i] == 1){count++;}}
-        std::cout << count << std::endl;
-
         // draw
         BeginDrawing();
         ClearBackground(Color{30, 30, 30, 255});
 
         grid.draw();
 
-        DrawText(TextFormat("%i", GetFPS()), 10, 10, 20, BLACK);
+        DrawText(TextFormat("%i", GetFPS()), 10, 14, 20, Color{0, 0, 0, 100});
+        DrawText(TextFormat("%i", GetFPS()), 10, 11, 20, Color{0, 150, 0, 255});
+        DrawText(TextFormat("%i", GetFPS()), 10, 10, 20, Color{0, 255, 0, 255});
 
         EndDrawing();
     }
