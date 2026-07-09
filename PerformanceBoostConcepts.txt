@@ -23,3 +23,10 @@ To fix this all that needs to change is that the hasCellBeenProccessed flag arra
 This means that any other thread will read that the coordinate cell has been/is being proccessed already.
 
 The same problem would occur with the newGrid array in case both threads computed a coordinate and wanted to add it to the newGrid, but since this happens as a final part of the whole coordinate operation its already fixed by the hasCellBeenProccessed check, meaning that only one thread is ever allowed to compute that newGrid index. 
+
+The atomic bool array is a more complex data structure than the previous simple bool array which means that the performance naturally drops between normal flagged and atomic flagged, with the hope that multithreaded will perform even better than normal flagged.
+
+Developers note after implementing multithreading:
+The resulting performance of multithreading is worse than expected, but interesting none the less. Compared to the best performing previous version (licgol_flagged) it reaches a lower highest FPS but surprisingly it reaches its highest FPS much faster, which may or may not result in an overall faster computation of the whole simulation up until an ending state (no more activity in the CGOL simulation past oscilating)
+
+Also i havent really tested this correctly but it seems that the multithreading version is better capable of computing at higher world resolutions.
