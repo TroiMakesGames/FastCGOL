@@ -91,35 +91,41 @@ class Grid
         //check each cell
         for (int key : activeCoords)
         {
+            //get coord and ind from key
             int x = key % worldWidth;
             int y = key / worldWidth;
 
+            Vector2 coord = Vector2(x, y);
+            int indx = coordToInt(coord);
+
+            //count live neighbors
             int liveCount = 0;
             for (int j = 0; j < 8; j++)
             {
-                //get neighboring coord
-                Vector2 coord = Vector2(x, y);
-                coord.x += neighbors[j].x;
-                coord.y += neighbors[j].y;
+                //get neighboring coord using neighbor offsets
+                Vector2 copyCoord = Vector2(x, y);
+                copyCoord.x += neighbors[j].x;
+                copyCoord.y += neighbors[j].y;
 
                 //clamp within world and loop over edges
-                int cx = (int)coord.x;
-                int cy = (int)coord.y;
+                int cx = (int)copyCoord.x;
+                int cy = (int)copyCoord.y;
 
                 cx = (cx % worldWidth + worldWidth) % worldWidth;
                 cy = (cy % worldHeight + worldHeight) % worldHeight;
 
-                coord.x = (float)cx;
-                coord.y = (float)cy;
+                copyCoord.x = (float)cx;
+                copyCoord.y = (float)cy;
 
-                int neighboringIndex = coordToInt(coord);
+                //get correctly clamped/looped index
+                int neighboringIndex = coordToInt(copyCoord);
 
+                //tally counter
                 if (grid[neighboringIndex] == 1)
                 {liveCount += 1;}
             }
 
             //check for rules
-            int indx = coordToInt(Vector2(x, y));
             if (grid[indx] == 1)
             {
                 if (liveCount < 2)
@@ -138,7 +144,7 @@ class Grid
             //relevance check
             if (newGrid[indx] != grid[indx])
             {
-                Vector2 coord = intToCoord(indx);
+                //add current coord to nextActiveCoords
                 int unorderedSet_key = coord.x + coord.y * worldWidth;
                 if (newActiveCoords.find(unorderedSet_key) == newActiveCoords.end())
                 {newActiveCoords.insert(unorderedSet_key);}
@@ -147,21 +153,21 @@ class Grid
                 for (int j = 0; j < 8; j++)
                 {
                     //get neighboring coord
-                    Vector2 ncoord = intToCoord(indx);
-                    ncoord.x += neighbors[j].x;
-                    ncoord.y += neighbors[j].y;
+                    Vector2 copyCoord = intToCoord(indx);
+                    copyCoord.x += neighbors[j].x;
+                    copyCoord.y += neighbors[j].y;
 
                     //clamp within world and loop over edges
-                    int cx = (int)ncoord.x;
-                    int cy = (int)ncoord.y;
+                    int cx = (int)copyCoord.x;
+                    int cy = (int)copyCoord.y;
 
                     cx = (cx % worldWidth + worldWidth) % worldWidth;
                     cy = (cy % worldHeight + worldHeight) % worldHeight;
 
-                    ncoord.x = (float)cx;
-                    ncoord.y = (float)cy;
+                    copyCoord.x = (float)cx;
+                    copyCoord.y = (float)cy;
                     
-                    int unorderedSet_key = ncoord.x + ncoord.y * worldWidth;
+                    int unorderedSet_key = copyCoord.x + copyCoord.y * worldWidth;
                     if (newActiveCoords.find(unorderedSet_key) == newActiveCoords.end())
                     {newActiveCoords.insert(unorderedSet_key);}
                 }
