@@ -24,7 +24,8 @@ class Grid
         int screenWidth;
         int screenHeight;
 
-        std::unordered_set<int> activeCoords;
+        std::vector<Vector2> activeCoords;
+        std::vector<bool> hasCoordBeenChecked;
 
         //neighboring coords
         const Vector2 neighbors[8] = {
@@ -56,11 +57,11 @@ class Grid
         for (int i = 0; i < totalCells; i++)
         {
             Vector2 coord = intToCoord(i);
-            int unorderedSet_key = coord.x + coord.y * worldWidth;
-            //no check required as initial active cells are are cells
-            //  if (activeCoords.find(key) == activeCoords.end())
-            activeCoords.insert(unorderedSet_key);
+            activeCoords.push_back(coord);
         }
+
+        //set checked flag array values
+        hasCoordBeenChecked = std::vector<bool>(totalCells, false);
     }
 
     //2D coordinate to 1D index
@@ -84,76 +85,30 @@ class Grid
 
     void updateGrid()
     {
-        //create new array full of 0 integers
+        //create new array full of 0 integers, reset checked flags
         std::vector<int> newGrid = grid;
-        std::unordered_set<int> newActiveCoords;
+        std::vector<Vector2> newActiveCoords;
+        hasCoordBeenChecked = std::vector<bool>(worldWidth * worldHeight, false);
 
         //check each cell
-        for (int key : activeCoords)
+        for (int i = 0; i < activeCoords.size(); i++)
         {
-            //get coord and ind from key
-            int x = key % worldWidth;
-            int y = key / worldWidth;
+            //get coord and indx from key
+            int x = activeCoords[i].x;
+            int y = activeCoords[i].y;
 
             Vector2 coord = Vector2(x, y);
             int indx = coordToInt(coord);
 
-            //count live neighbors
-            int liveCount = 0;
-            for (int j = 0; j < 8; j++)
+            //only compute if hasnt been checked yet
+            if (hasCoordBeenChecked[indx] == false)
             {
-                //get neighboring coord using neighbor offsets
-                Vector2 copyCoord = Vector2(x, y);
-                copyCoord.x += neighbors[j].x;
-                copyCoord.y += neighbors[j].y;
-
-                //clamp within world and loop over edges
-                int cx = (int)copyCoord.x;
-                int cy = (int)copyCoord.y;
-
-                cx = (cx % worldWidth + worldWidth) % worldWidth;
-                cy = (cy % worldHeight + worldHeight) % worldHeight;
-
-                copyCoord.x = (float)cx;
-                copyCoord.y = (float)cy;
-
-                //get correctly clamped/looped index
-                int neighboringIndex = coordToInt(copyCoord);
-
-                //tally counter
-                if (grid[neighboringIndex] == 1)
-                {liveCount += 1;}
-            }
-
-            //check for rules
-            if (grid[indx] == 1)
-            {
-                if (liveCount < 2)
-                {newGrid[indx] = 0;}
-                else if (liveCount == 2 || liveCount == 3)
-                {newGrid[indx] = 1;}
-                else if (liveCount > 3)
-                {newGrid[indx] = 0;}
-            }
-            else if (grid[indx] == 0)
-            {
-                if (liveCount == 3)
-                {newGrid[indx] = 1;}
-            }
-
-            //relevance check
-            if (newGrid[indx] != grid[indx])
-            {
-                //add current coord to nextActiveCoords
-                int unorderedSet_key = coord.x + coord.y * worldWidth;
-                if (newActiveCoords.find(unorderedSet_key) == newActiveCoords.end())
-                {newActiveCoords.insert(unorderedSet_key);}
-
-                //also add all neighbors
+                //count live neighbors
+                int liveCount = 0;
                 for (int j = 0; j < 8; j++)
                 {
-                    //get neighboring coord
-                    Vector2 copyCoord = intToCoord(indx);
+                    //get neighboring coord using neighbor offsets
+                    Vector2 copyCoord = Vector2(x, y);
                     copyCoord.x += neighbors[j].x;
                     copyCoord.y += neighbors[j].y;
 
@@ -166,11 +121,61 @@ class Grid
 
                     copyCoord.x = (float)cx;
                     copyCoord.y = (float)cy;
-                    
-                    int unorderedSet_key = copyCoord.x + copyCoord.y * worldWidth;
-                    if (newActiveCoords.find(unorderedSet_key) == newActiveCoords.end())
-                    {newActiveCoords.insert(unorderedSet_key);}
+
+                    //get correctly clamped/looped index
+                    int neighboringIndex = coordToInt(copyCoord);
+
+                    //tally counter
+                    if (grid[neighboringIndex] == 1)
+                    {liveCount += 1;}
                 }
+
+                //check for rules
+                if (grid[indx] == 1)
+                {
+                    if (liveCount < 2)
+                    {newGrid[indx] = 0;}
+                    else if (liveCount == 2 || liveCount == 3)
+                    {newGrid[indx] = 1;}
+                    else if (liveCount > 3)
+                    {newGrid[indx] = 0;}
+                }
+                else if (grid[indx] == 0)
+                {
+                    if (liveCount == 3)
+                    {newGrid[indx] = 1;}
+                }
+
+                //relevance check
+                if (newGrid[indx] != grid[indx])
+                {
+                    //add current coord to nextActiveCoords
+                    newActiveCoords.push_back(coord);
+
+                    //also add all neighbors
+                    for (int j = 0; j < 8; j++)
+                    {
+                        //get neighboring coord
+                        Vector2 copyCoord = intToCoord(indx);
+                        copyCoord.x += neighbors[j].x;
+                        copyCoord.y += neighbors[j].y;
+
+                        //clamp within world and loop over edges
+                        int cx = (int)copyCoord.x;
+                        int cy = (int)copyCoord.y;
+
+                        cx = (cx % worldWidth + worldWidth) % worldWidth;
+                        cy = (cy % worldHeight + worldHeight) % worldHeight;
+
+                        copyCoord.x = (float)cx;
+                        copyCoord.y = (float)cy;
+                        
+                        newActiveCoords.push_back(copyCoord);
+                    }
+                }
+                
+                //mark as checked
+                hasCoordBeenChecked[indx] = true;
             }
         }
 
