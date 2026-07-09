@@ -5,6 +5,7 @@
 #include <random>           //random
 #include <atomic>           //atomic bool flag array
 #include <memory>               //same
+#include <thread>          //multithreading
 
 //set randomness stuff
 std::random_device rd;
@@ -27,6 +28,9 @@ class Grid
 
         std::vector<Vector2> activeCoords;
         std::unique_ptr<std::atomic<bool>[]> hasCoordBeenChecked;
+
+        int numThreads = std::thread::hardware_concurrency();
+        int chunkSize = 0;
 
         //neighboring coords
         const Vector2 neighbors[8] = {
@@ -65,6 +69,13 @@ class Grid
         hasCoordBeenChecked = std::make_unique<std::atomic<bool>[]>(totalCells);
         for (int i = 0; i < totalCells; i++) 
         {hasCoordBeenChecked[i].store(false);}
+
+        //failsafe if hardware concurrency for initial numThreads initialisation returns 0
+        if (numThreads == 0) 
+        {numThreads = 4;}
+
+        //get chunck size
+        chunkSize = std::max(1, (int)activeCoords.size() / numThreads);
     }
 
     //2D coordinate to 1D index
@@ -95,96 +106,122 @@ class Grid
         for (int i = 0; i < worldWidth * worldHeight; i++)
         {hasCoordBeenChecked[i].store(false);}
 
-        //check each cell
-        for (int i = 0; i < activeCoords.size(); i++)
+        //set threads
+        std::vector<std::thread> threads;
+        threads.reserve(numThreads);
+        std::vector<std::vector<Vector2>> threadLocalActive(numThreads);    //2D array of each threads active
+
+        //recompute chunk size
+        chunkSize = std::max(1, (int)activeCoords.size() / numThreads);
+
+        for (int t = 0; t < numThreads; t++)
         {
-            //get coord and indx from key
-            int x = activeCoords[i].x;
-            int y = activeCoords[i].y;
+            int start = t * chunkSize;
+            int end = (t == numThreads - 1) ? activeCoords.size() : start + chunkSize;
 
-            Vector2 coord = Vector2(x, y);
-            int indx = coordToInt(coord);
-
-            //only compute if hasnt been checked yet
-            if (hasCoordBeenChecked[indx].exchange(true)) 
-            {continue;}
-
-            //count live neighbors
-            int liveCount = 0;
-            for (int j = 0; j < 8; j++)
-            {
-                //get neighboring coord using neighbor offsets
-                Vector2 copyCoord = Vector2(x, y);
-                copyCoord.x += neighbors[j].x;
-                copyCoord.y += neighbors[j].y;
-
-                //clamp within world and loop over edges
-                int cx = (int)copyCoord.x;
-                int cy = (int)copyCoord.y;
-
-                cx = (cx % worldWidth + worldWidth) % worldWidth;
-                cy = (cy % worldHeight + worldHeight) % worldHeight;
-
-                copyCoord.x = (float)cx;
-                copyCoord.y = (float)cy;
-
-                //get correctly clamped/looped index
-                int neighboringIndex = coordToInt(copyCoord);
-
-                //tally counter
-                if (grid[neighboringIndex] == 1)
-                {liveCount += 1;}
-            }
-
-            //check for rules
-            if (grid[indx] == 1)
-            {
-                if (liveCount < 2)
-                {newGrid[indx] = 0;}
-                else if (liveCount == 2 || liveCount == 3)
-                {newGrid[indx] = 1;}
-                else if (liveCount > 3)
-                {newGrid[indx] = 0;}
-            }
-            else if (grid[indx] == 0)
-            {
-                if (liveCount == 3)
-                {newGrid[indx] = 1;}
-            }
-
-            //relevance check
-            if (newGrid[indx] != grid[indx])
-            {
-                //add current coord to nextActiveCoords
-                newActiveCoords.push_back(coord);
-
-                //also add all neighbors
-                for (int j = 0; j < 8; j++)
+            threads.emplace_back([&, start, end, t]()
                 {
-                    //get neighboring coord
-                    Vector2 copyCoord = intToCoord(indx);
-                    copyCoord.x += neighbors[j].x;
-                    copyCoord.y += neighbors[j].y;
+                    //check each cell
+                    for (int i = start; i < end && i < activeCoords.size(); i++)
+                    {
+                        //get coord and indx from key
+                        int x = activeCoords[i].x;
+                        int y = activeCoords[i].y;
 
-                    //clamp within world and loop over edges
-                    int cx = (int)copyCoord.x;
-                    int cy = (int)copyCoord.y;
+                        Vector2 coord = Vector2(x, y);
+                        int indx = coordToInt(coord);
 
-                    cx = (cx % worldWidth + worldWidth) % worldWidth;
-                    cy = (cy % worldHeight + worldHeight) % worldHeight;
+                        //only compute if hasnt been checked yet
+                        if (hasCoordBeenChecked[indx].exchange(true)) 
+                        {continue;}
 
-                    copyCoord.x = (float)cx;
-                    copyCoord.y = (float)cy;
-                        
-                    newActiveCoords.push_back(copyCoord);
+                        //count live neighbors
+                        int liveCount = 0;
+                        for (int j = 0; j < 8; j++)
+                        {
+                            //get neighboring coord using neighbor offsets
+                            Vector2 copyCoord = Vector2(x, y);
+                            copyCoord.x += neighbors[j].x;
+                            copyCoord.y += neighbors[j].y;
+
+                            //clamp within world and loop over edges
+                            int cx = (int)copyCoord.x;
+                            int cy = (int)copyCoord.y;
+
+                            cx = (cx % worldWidth + worldWidth) % worldWidth;
+                            cy = (cy % worldHeight + worldHeight) % worldHeight;
+
+                            copyCoord.x = (float)cx;
+                            copyCoord.y = (float)cy;
+
+                            //get correctly clamped/looped index
+                            int neighboringIndex = coordToInt(copyCoord);
+
+                            //tally counter
+                            if (grid[neighboringIndex] == 1)
+                            {liveCount += 1;}
+                        }
+
+                        //check for rules
+                        if (grid[indx] == 1)
+                        {
+                            if (liveCount < 2)
+                            {newGrid[indx] = 0;}
+                            else if (liveCount == 2 || liveCount == 3)
+                            {newGrid[indx] = 1;}
+                            else if (liveCount > 3)
+                            {newGrid[indx] = 0;}
+                        }
+                        else if (grid[indx] == 0)
+                        {
+                            if (liveCount == 3)
+                            {newGrid[indx] = 1;}
+                        }
+
+                        //relevance check
+                        if (newGrid[indx] != grid[indx])
+                        {
+                            //add current coord to nextActiveCoords
+                            threadLocalActive[t].push_back(coord);
+
+                            //also add all neighbors
+                            for (int j = 0; j < 8; j++)
+                            {
+                                //get neighboring coord
+                                Vector2 copyCoord = intToCoord(indx);
+                                copyCoord.x += neighbors[j].x;
+                                copyCoord.y += neighbors[j].y;
+
+                                //clamp within world and loop over edges
+                                int cx = (int)copyCoord.x;
+                                int cy = (int)copyCoord.y;
+
+                                cx = (cx % worldWidth + worldWidth) % worldWidth;
+                                cy = (cy % worldHeight + worldHeight) % worldHeight;
+
+                                copyCoord.x = (float)cx;
+                                copyCoord.y = (float)cy;
+                                    
+                                threadLocalActive[t].push_back(copyCoord);
+                            }
+                        }
+                    }
                 }
-            }
+            );
         }
+
+        //merge threads
+        for (auto& th : threads)
+        {th.join();}
+
+        for (auto& vec : threadLocalActive)
+        {newActiveCoords.insert(newActiveCoords.end(), vec.begin(), vec.end());}
 
         //update current grid and active coords array
         grid = newGrid;
         activeCoords = newActiveCoords;
     }
+
 };
 
 int main() {
