@@ -3,7 +3,8 @@
 #include <iostream>         //console logging
 #include <cmath>            //math stuff like floor()
 #include <random>           //random
-#include <unordered_set>    //O(1) lookup time set
+#include <atomic>           //atomic bool flag array
+#include <memory>               //same
 
 //set randomness stuff
 std::random_device rd;
@@ -25,7 +26,7 @@ class Grid
         int screenHeight;
 
         std::vector<Vector2> activeCoords;
-        std::vector<bool> hasCoordBeenChecked;
+        std::unique_ptr<std::atomic<bool>[]> hasCoordBeenChecked;
 
         //neighboring coords
         const Vector2 neighbors[8] = {
@@ -61,7 +62,9 @@ class Grid
         }
 
         //set checked flag array values
-        hasCoordBeenChecked = std::vector<bool>(totalCells, false);
+        hasCoordBeenChecked = std::make_unique<std::atomic<bool>[]>(totalCells);
+        for (int i = 0; i < totalCells; i++) 
+        {hasCoordBeenChecked[i].store(false);}
     }
 
     //2D coordinate to 1D index
@@ -88,7 +91,9 @@ class Grid
         //create new array full of 0 integers, reset checked flags
         std::vector<int> newGrid = grid;
         std::vector<Vector2> newActiveCoords;
-        hasCoordBeenChecked = std::vector<bool>(worldWidth * worldHeight, false);
+
+        for (int i = 0; i < worldWidth * worldHeight; i++)
+        {hasCoordBeenChecked[i].store(false);}
 
         //check each cell
         for (int i = 0; i < activeCoords.size(); i++)
@@ -101,14 +106,63 @@ class Grid
             int indx = coordToInt(coord);
 
             //only compute if hasnt been checked yet
-            if (hasCoordBeenChecked[indx] == false)
+            if (hasCoordBeenChecked[indx].exchange(true)) 
+            {continue;}
+
+            //count live neighbors
+            int liveCount = 0;
+            for (int j = 0; j < 8; j++)
             {
-                //count live neighbors
-                int liveCount = 0;
+                //get neighboring coord using neighbor offsets
+                Vector2 copyCoord = Vector2(x, y);
+                copyCoord.x += neighbors[j].x;
+                copyCoord.y += neighbors[j].y;
+
+                //clamp within world and loop over edges
+                int cx = (int)copyCoord.x;
+                int cy = (int)copyCoord.y;
+
+                cx = (cx % worldWidth + worldWidth) % worldWidth;
+                cy = (cy % worldHeight + worldHeight) % worldHeight;
+
+                copyCoord.x = (float)cx;
+                copyCoord.y = (float)cy;
+
+                //get correctly clamped/looped index
+                int neighboringIndex = coordToInt(copyCoord);
+
+                //tally counter
+                if (grid[neighboringIndex] == 1)
+                {liveCount += 1;}
+            }
+
+            //check for rules
+            if (grid[indx] == 1)
+            {
+                if (liveCount < 2)
+                {newGrid[indx] = 0;}
+                else if (liveCount == 2 || liveCount == 3)
+                {newGrid[indx] = 1;}
+                else if (liveCount > 3)
+                {newGrid[indx] = 0;}
+            }
+            else if (grid[indx] == 0)
+            {
+                if (liveCount == 3)
+                {newGrid[indx] = 1;}
+            }
+
+            //relevance check
+            if (newGrid[indx] != grid[indx])
+            {
+                //add current coord to nextActiveCoords
+                newActiveCoords.push_back(coord);
+
+                //also add all neighbors
                 for (int j = 0; j < 8; j++)
                 {
-                    //get neighboring coord using neighbor offsets
-                    Vector2 copyCoord = Vector2(x, y);
+                    //get neighboring coord
+                    Vector2 copyCoord = intToCoord(indx);
                     copyCoord.x += neighbors[j].x;
                     copyCoord.y += neighbors[j].y;
 
@@ -121,61 +175,9 @@ class Grid
 
                     copyCoord.x = (float)cx;
                     copyCoord.y = (float)cy;
-
-                    //get correctly clamped/looped index
-                    int neighboringIndex = coordToInt(copyCoord);
-
-                    //tally counter
-                    if (grid[neighboringIndex] == 1)
-                    {liveCount += 1;}
-                }
-
-                //check for rules
-                if (grid[indx] == 1)
-                {
-                    if (liveCount < 2)
-                    {newGrid[indx] = 0;}
-                    else if (liveCount == 2 || liveCount == 3)
-                    {newGrid[indx] = 1;}
-                    else if (liveCount > 3)
-                    {newGrid[indx] = 0;}
-                }
-                else if (grid[indx] == 0)
-                {
-                    if (liveCount == 3)
-                    {newGrid[indx] = 1;}
-                }
-
-                //relevance check
-                if (newGrid[indx] != grid[indx])
-                {
-                    //add current coord to nextActiveCoords
-                    newActiveCoords.push_back(coord);
-
-                    //also add all neighbors
-                    for (int j = 0; j < 8; j++)
-                    {
-                        //get neighboring coord
-                        Vector2 copyCoord = intToCoord(indx);
-                        copyCoord.x += neighbors[j].x;
-                        copyCoord.y += neighbors[j].y;
-
-                        //clamp within world and loop over edges
-                        int cx = (int)copyCoord.x;
-                        int cy = (int)copyCoord.y;
-
-                        cx = (cx % worldWidth + worldWidth) % worldWidth;
-                        cy = (cy % worldHeight + worldHeight) % worldHeight;
-
-                        copyCoord.x = (float)cx;
-                        copyCoord.y = (float)cy;
                         
-                        newActiveCoords.push_back(copyCoord);
-                    }
+                    newActiveCoords.push_back(copyCoord);
                 }
-                
-                //mark as checked
-                hasCoordBeenChecked[indx] = true;
             }
         }
 
