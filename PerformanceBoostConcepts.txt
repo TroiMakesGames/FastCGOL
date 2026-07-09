@@ -8,6 +8,18 @@ A fix for this is very simple, but we have to take a step back. Instead of tryin
 
 (basicaly instead of avoiding duplicates we skip duplicates in future checks)
 
-This can be done with a simple flag array where we store which cells have been checked and which havent. When looping through the activeCoords once we reach a copy of a previously checked adtive coord  because we marked the coord as checked the copy is simply skipped
+This can be done with a simple flag array where we store which cells have been checked and which havent. When looping through the activeCoords, once we reach a copy of a previously checked active coord,  because we marked the coord as checked, the copy is simply skipped
 
 This method is better for multithreading (as we allow overpushing and avoid race conditions) and we get the same result of skipping mutliple checks for a single active cell
+
+Developers note after implementing the hasCellBeenProccessed flag array:
+Since the datatype of a simple bool array is much more simple than an unordered set all of the removed computing required to not add copies to the unordered set made the simulation around 80% faster already, even tho the whole change was made to allow multithreading.
+
+Developers note before implementing multithreading:
+during multithreading since the activeCoords still contains duplicates, 2 threads may want to compute the same coordinate at the same time, which introduces race conditions.
+Even tho both threads eventualy do come to the same result of the newGrid cell state and both write the same (True) value to the hasCellBeenProccessed flag array this still leaves possibilities for undefined states.
+
+To fix this all that needs to change is that the hasCellBeenProccessed flag array becomes an atomic bool array, where reading and writting is done as an non-divisible (atomic) operation. Once a thread reads that a coordinate has not yet been proccesed, it will immediatly exchange the value from false to true before any other thread can read the state.
+This means that any other thread will read that the coordinate cell has been/is being proccessed already.
+
+The same problem would occur with the newGrid array in case both threads computed a coordinate and wanted to add it to the newGrid, but since this happens as a final part of the whole coordinate operation its already fixed by the hasCellBeenProccessed check, meaning that only one thread is ever allowed to compute that newGrid index. 
