@@ -1,6 +1,12 @@
 The builds directory contains all of the final compiled versions of the CGoL simulation at the world resolution of 250x150
 
 //TODO - add all of the following
+//	set 1 shared seed
+//	add python pygame implementation
+//	get python pygame executables
+
+//TODO - implement FPS reading in c++ raylib for future graphs
+//	redo all reading for all executables and compile data into some sort of an analysis
 
 1. pp_cgol			Python Pygame default
 2. pp_icgol		Python Pygame irrelavance check
