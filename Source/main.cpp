@@ -1,8 +1,9 @@
-#include "raylib.h"     //raylib framework/library
-#include <vector>       //includes type dynamic arrays called vectors in c++
-#include <iostream>     //console logging
-#include <cmath>        //math stuff like floor()
-#include <random>       //random
+#include "raylib.h"         //raylib framework/library
+#include <vector>           //includes type dynamic arrays called vectors in c++
+#include <iostream>         //console logging
+#include <cmath>            //math stuff like floor()
+#include <random>           //random
+#include <unordered_set>    //O(1) lookup time set
 
 //set randomness stuff
 std::random_device rd;
@@ -23,7 +24,7 @@ class Grid
         int screenWidth;
         int screenHeight;
 
-        std::vector<Vector2> activeCoords;
+        std::unordered_set<int> activeCoords;
 
         //neighboring coords
         const Vector2 neighbors[8] = {
@@ -52,10 +53,13 @@ class Grid
         {grid[i] = std::uniform_int_distribution<int>(0, 1)(gen);}
 
         //set initial active cells
-        for (int i = i; i < totalCells; i++)
+        for (int i = 0; i < totalCells; i++)
         {
             Vector2 coord = intToCoord(i);
-            activeCoords.push_back(coord);
+            int unorderedSet_key = coord.x + coord.y * worldWidth;
+            //no check required as initial active cells are are cells
+            //  if (activeCoords.find(key) == activeCoords.end())
+            activeCoords.insert(unorderedSet_key);
         }
     }
 
@@ -82,30 +86,40 @@ class Grid
     {
         //create new array full of 0 integers
         std::vector<int> newGrid = grid;
-        std::vector<Vector2> newActiveCoords;
+        std::unordered_set<int> newActiveCoords;
 
         //check each cell
-        for (int i = 0; i < activeCoords.size(); i++)
+        for (int key : activeCoords)
         {
+            int x = key % worldWidth;
+            int y = key / worldWidth;
+
             int liveCount = 0;
             for (int j = 0; j < 8; j++)
             {
                 //get neighboring coord
-                Vector2 coord = activeCoords[i];
+                Vector2 coord = Vector2(x, y);
                 coord.x += neighbors[j].x;
                 coord.y += neighbors[j].y;
-                int neighboringIndex = coordToInt(coord);
 
-                //check if coord within world
-                if (coord.x < 0 || coord.x > worldWidth - 1 || coord.y < 0 || coord.y > worldHeight - 1)
-                {break;}
+                //clamp within world and loop over edges
+                int cx = (int)coord.x;
+                int cy = (int)coord.y;
+
+                cx = (cx % worldWidth + worldWidth) % worldWidth;
+                cy = (cy % worldHeight + worldHeight) % worldHeight;
+
+                coord.x = (float)cx;
+                coord.y = (float)cy;
+
+                int neighboringIndex = coordToInt(coord);
 
                 if (grid[neighboringIndex] == 1)
                 {liveCount += 1;}
             }
 
             //check for rules
-            int indx = coordToInt(activeCoords[i]);
+            int indx = coordToInt(Vector2(x, y));
             if (grid[indx] == 1)
             {
                 if (liveCount < 2)
@@ -124,7 +138,10 @@ class Grid
             //relevance check
             if (newGrid[indx] != grid[indx])
             {
-                newActiveCoords.push_back(intToCoord(indx));
+                Vector2 coord = intToCoord(indx);
+                int unorderedSet_key = coord.x + coord.y * worldWidth;
+                if (newActiveCoords.find(unorderedSet_key) == newActiveCoords.end())
+                {newActiveCoords.insert(unorderedSet_key);}
 
                 //also add all neighbors
                 for (int j = 0; j < 8; j++)
@@ -133,20 +150,20 @@ class Grid
                     Vector2 ncoord = intToCoord(indx);
                     ncoord.x += neighbors[j].x;
                     ncoord.y += neighbors[j].y;
-                    
-                    //check if ncoord already exists
-                    bool exists = false;
-                    for (int k = 0; k < newActiveCoords.size(); k++)
-                    {
-                        if (newActiveCoords[k].x == ncoord.x && newActiveCoords[k].y == ncoord.y)
-                        {
-                            exists = true;
-                            break;
-                        }
-                    }
 
-                    if (!exists)
-                    {newActiveCoords.push_back(ncoord);}
+                    //clamp within world and loop over edges
+                    int cx = (int)ncoord.x;
+                    int cy = (int)ncoord.y;
+
+                    cx = (cx % worldWidth + worldWidth) % worldWidth;
+                    cy = (cy % worldHeight + worldHeight) % worldHeight;
+
+                    ncoord.x = (float)cx;
+                    ncoord.y = (float)cy;
+                    
+                    int unorderedSet_key = ncoord.x + ncoord.y * worldWidth;
+                    if (newActiveCoords.find(unorderedSet_key) == newActiveCoords.end())
+                    {newActiveCoords.insert(unorderedSet_key);}
                 }
             }
         }
@@ -159,14 +176,14 @@ class Grid
 
 int main() {
     //screen initialisation
-    const int WIDTH = 800;
-    const int HEIGHT = 600;
+    const int WIDTH = 750;
+    const int HEIGHT = 450;
     InitWindow(WIDTH, HEIGHT, "Fast Conways Game of Life");
-    SetTargetFPS(60);
+    SetTargetFPS(0);
 
     //variable initialisation
 
-    int cellSize = 1;
+    int cellSize = 3;
     Grid grid = Grid(WIDTH, HEIGHT, cellSize);
     //grid.grid[grid.worldWidth * 7 + 11] = 1;
 
