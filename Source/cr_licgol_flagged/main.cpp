@@ -9,6 +9,23 @@
 std::random_device rd;
 std::mt19937 gen(rd());
 
+//load data from an existing pregenerated world data file
+#include <fstream>
+#include <string>
+void LoadSeed(const std::string& filename, int* grid, int width, int height)
+{
+    std::ifstream file(filename);
+    std::string line;
+
+    if (std::getline(file, line))
+    {
+        int size = width * height;
+
+        for (int i = 0; i < size && i < (int)line.size(); i++)
+        {grid[i] = line[i] - '0';}
+    }
+}
+
 class Grid 
 {
     public:
@@ -49,9 +66,15 @@ class Grid
         int totalCells = worldWidth * worldHeight;
         grid.resize(totalCells);
 
-        //set random values for start
-        for (int i = 0; i < totalCells; i++)
-        {grid[i] = std::uniform_int_distribution<int>(0, 1)(gen);}
+        //set random values for start if the seed file exists
+        std::string pathToPregeneratedWorld = "../seed.txt";
+        if (std::ifstream().good())
+        {LoadSeed(pathToPregeneratedWorld, grid.data(), worldWidth, worldHeight);}
+        else
+        {
+            for (int i = 0; i < totalCells; i++)
+            {grid[i] = std::uniform_int_distribution<int>(0, 1)(gen);}
+        }
 
         //set initial active cells
         for (int i = 0; i < totalCells; i++)

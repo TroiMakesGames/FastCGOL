@@ -8,6 +8,23 @@
 std::random_device rd;
 std::mt19937 gen(rd());
 
+//load data from an existing pregenerated world data file
+#include <fstream>
+#include <string>
+void LoadSeed(const std::string& filename, int* grid, int width, int height)
+{
+    std::ifstream file(filename);
+    std::string line;
+
+    if (std::getline(file, line))
+    {
+        int size = width * height;
+
+        for (int i = 0; i < size && i < (int)line.size(); i++)
+        {grid[i] = line[i] - '0';}
+    }
+}
+
 class Grid 
 {
     public:
@@ -45,9 +62,15 @@ class Grid
         int totalCells = worldWidth * worldHeight;
         grid.resize(totalCells);
 
-        //set random values for start
-        for (int i = 0; i < totalCells; i++)
-        {grid[i] = std::uniform_int_distribution<int>(0, 1)(gen);}
+        //set random values for start if the seed file exists
+        std::string pathToPregeneratedWorld = "../seed.txt";
+        if (std::ifstream().good())
+        {LoadSeed(pathToPregeneratedWorld, grid.data(), worldWidth, worldHeight);}
+        else
+        {
+            for (int i = 0; i < totalCells; i++)
+            {grid[i] = std::uniform_int_distribution<int>(0, 1)(gen);}
+        }
     }
 
     //2D coordinate to 1D index
@@ -84,11 +107,18 @@ class Grid
                 Vector2 coord = intToCoord(i);
                 coord.x += neighbors[j].x;
                 coord.y += neighbors[j].y;
-                int neighboringIndex = coordToInt(coord);
 
-                //check if coord within world
-                if (coord.x < 0 || coord.x > worldWidth - 1 || coord.y < 0 || coord.y > worldHeight - 1)
-                {break;}
+                //clamp within world and loop over edges
+                int cx = (int)coord.x;
+                int cy = (int)coord.y;
+
+                cx = (cx % worldWidth + worldWidth) % worldWidth;
+                cy = (cy % worldHeight + worldHeight) % worldHeight;
+
+                coord.x = (float)cx;
+                coord.y = (float)cy;
+
+                int neighboringIndex = coordToInt(coord);
 
                 if (grid[neighboringIndex] == 1)
                 {liveCount += 1;}
@@ -118,14 +148,14 @@ class Grid
 
 int main() {
     //screen initialisation
-    const int WIDTH = 800;
-    const int HEIGHT = 600;
+    const int WIDTH = 750;
+    const int HEIGHT = 450;
     InitWindow(WIDTH, HEIGHT, "Fast Conways Game of Life");
     SetTargetFPS(60);
 
     //variable initialisation
 
-    int cellSize = 1;
+    int cellSize = 3;
     Grid grid = Grid(WIDTH, HEIGHT, cellSize);
     //grid.grid[grid.worldWidth * 7 + 11] = 1;
 
