@@ -6,6 +6,7 @@
 #include <atomic>           //atomic bool flag array
 #include <memory>               //same
 #include <thread>          //multithreading
+#include <chrono>           //performance tracking
 
 //set randomness stuff
 std::random_device rd;
@@ -260,13 +261,29 @@ int main() {
     Grid grid = Grid(WIDTH, HEIGHT, cellSize);
     //grid.grid[grid.worldWidth * 7 + 11] = 1;
 
-    //while loop
-    while (!WindowShouldClose()) {
+    //track generation count to stop at a certain state
+    int generationCount = 0;
+    int maxGenerationCount = 10000;
+    double times[10000];;  //store time required localy then save after the simulation finishes
 
-        // update
+    //while loop
+    while (!WindowShouldClose() && generationCount < maxGenerationCount) {
+
+        //start tracking how long it takes for the operations in between the chrono events to execute
+        auto start = std::chrono::high_resolution_clock::now();
+            
         grid.updateGrid();
+        generationCount += 1;
+
+        //... end tracking
+        auto end = std::chrono::high_resolution_clock::now();
+
+        //save the time required to procces
+        double ms = std::chrono::duration<double, std::milli>(end - start).count();
+        times[generationCount] = ms;
 
         // draw
+        /*
         BeginDrawing();
         ClearBackground(Color{30, 30, 30, 255});
 
@@ -277,7 +294,14 @@ int main() {
         DrawText(TextFormat("%i", GetFPS()), 10, 10, 20, Color{0, 255, 0, 255});
 
         EndDrawing();
+        */
     }
+
+    //save time data
+    std::ofstream dataFile("data.txt");
+    for (int i = 0; i < generationCount; i++)
+    {dataFile << times[i] << "\n";}
+    dataFile.close();
 
     CloseWindow();
     return 0;
