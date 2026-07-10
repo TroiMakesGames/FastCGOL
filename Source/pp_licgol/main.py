@@ -166,12 +166,10 @@ while running:
         write_count += 1
     """
 
-    """
     #write active cell count each frame
-    if frame_count < 1500:
+    """if frame_count < 1500:
         fps_file.write(f"{len(active)}\n")
-        fps_file.flush()  # ensures it writes immediately
-    """
+        fps_file.flush()  # ensures it writes immediately"""
 
     # Update the display
     pygame.display.flip()
