@@ -6,7 +6,7 @@ import numpy as np
 import random
 
 #set seed
-random.seed(42)
+random.seed(50)
 
 import time     #fps display
 
@@ -95,7 +95,7 @@ last_time = time.time()
 highestFps = 0
 
 #write graphing data
-fps_file = open("fps_log_CGoL.txt", "w")
+"""fps_file = open("fps_log_CGoL.txt", "w")"""
 accum_time = 0
 frame_count = 0
 write_count = 0
@@ -161,7 +161,7 @@ while running:
     # Update the display
     pygame.display.flip()
 
-fps_file.close()
+"""fps_file.close()"""
 
 # Quit Pygame
 pygame.quit()

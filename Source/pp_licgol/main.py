@@ -6,7 +6,7 @@ import numpy as np
 import random
 
 #set seed
-random.seed(42)
+random.seed(50)
 
 import time     #fps display
 
@@ -110,7 +110,7 @@ last_time = time.time()
 highestFps = 0
 
 #write graphing data
-fps_file = open("fps_log_LICGoL.txt", "w")
+"""fps_file = open("fps_log_LICGoL.txt", "w")"""
 accum_time = 0
 frame_count = 0
 write_count = 0
@@ -166,15 +166,17 @@ while running:
         write_count += 1
     """
 
+    """
     #write active cell count each frame
     if frame_count < 1500:
         fps_file.write(f"{len(active)}\n")
         fps_file.flush()  # ensures it writes immediately
+    """
 
     # Update the display
     pygame.display.flip()
 
-fps_file.close()
+"""fps_file.close()"""
 
 # Quit Pygame
 pygame.quit()
