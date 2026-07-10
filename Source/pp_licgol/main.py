@@ -110,10 +110,9 @@ last_time = time.time()
 highestFps = 0
 
 #write graphing data
-"""fps_file = open("fps_log_LICGoL.txt", "w")"""
-accum_time = 0
-frame_count = 0
-write_count = 0
+times = []
+generationCount = 0
+maxGenerationCount = 10000
 
 #randomly gemnerate world
 for i in range(wolrdWidth):
@@ -123,7 +122,7 @@ for i in range(wolrdWidth):
             world[i][j] = 1
 
 running = True
-while running:
+while running and generationCount < maxGenerationCount:
     # Handle events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -133,10 +132,16 @@ while running:
     screen.fill((0, 0, 0))
     
     #update world
+    start = time.perf_counter()
     world, active = updateWorld(world, active)
+    end = time.perf_counter()
+
+    #track time data localy
+    ms = (end - start) * 1000
+    times.append(ms)
 
     #draw world
-    drawWorld()
+    #drawWorld()
 
     #display fps in the window caption
     current_time = time.time()
@@ -150,9 +155,6 @@ while running:
 
     pygame.display.set_caption(f"Conway's Game of Life - Live irrelevance check optimisation | FPS: {fps:.0f} | highestFPS: {highestFps:.0f}")
 
-    #(stuff for graphing data collection)
-    frame_count += 1
-    accum_time += dt
 
     """
     if accum_time >= 0.1 and write_count < 550:     #write every 10ms (10/s) for 400 writes (40 seconds)
@@ -175,6 +177,11 @@ while running:
     pygame.display.flip()
 
 """fps_file.close()"""
+
+#save times data
+with open("data.txt", "w") as f:
+    for t in times:
+        f.write(f"{t}\n")
 
 # Quit Pygame
 pygame.quit()
