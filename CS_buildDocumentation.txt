@@ -1,0 +1,28 @@
+// Build documentation for the C# OpenTK implementations (how to compile builds and this type of stuff)
+
+the C# implementations use .NET with OpenTK (an OpenGL wrapper for C#)
+
+- - - - - - - - -
+
+the empty OpenTK project was built using:
+> cd path/to/cs_cgol
+> dotnet new console
+> dotnet add package OpenTK --version 4.9.4
+
+- - - - - - - - -
+
+a simple debug build is run using:
+> (cd path/to/cs_cgol)
+> dotnet run
+
+this opens the build automaticaly, the acctual cs_cgol.exe is contained within cs_cgol/bin/Debug/net9.0/cs_cgol.exe
+
+- - - - - - - - -
+
+a proper published/non-debug build is buildt uding:
+> (cd path/to/cs_cgol)
+> dotnet publish -c Release --self-contained true
+
+this does not run the build automaticaly, it is contained within cs_cgol/bin/Release/net9.0/win-x64/publish/cs_cgol.exe
+NOTE that since the shader assets are read during runtime and not included in the compiled build, a copy of the Shaders asset folder is made publish as well
+    there are acctualy 2 copies of the Shader asset folder made, on in publish, which is acctualy used by the compiled build, and one in win-x64 (one folder above publish) which is just an intermediate folder generated on the side, it isnt required

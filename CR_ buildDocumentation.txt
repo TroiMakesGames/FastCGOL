@@ -1,3 +1,5 @@
+// Build documentation for the C++ Raylib implementations (how to compile builds and this type of stuff)
+
 In order to compile a target .cpp file the correct environment terminal and command links must be used
 
 ---------- SINGLE FILE COMPILE TO .EXE ----------
