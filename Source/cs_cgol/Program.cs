@@ -5,6 +5,8 @@ using OpenTK.Windowing.Common;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
+using System.Collections.Generic;
+
 class Program : GameWindow
 {
     /* SETUP + simple draw function - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -21,23 +23,48 @@ class Program : GameWindow
         );
     }
 
-    public static void DrawRectangle(float x, float y, float width, float height) 
+    public static void DrawGrid(bool[] grid, int worldWidth, int worldHeight, int cellSize)
     {
-        float left   = (x / 800f) * 2f - 1f;
-        float right  = ((x + width) / 800f) * 2f - 1f;
-        float top    = 1f - (y / 600f) * 2f;
-        float bottom = 1f - ((y + height) / 600f) * 2f;
+        List<float> vertices = new List<float>();
 
-        float[] vertices =
+        for (int i = 0; i < worldWidth; i++)
         {
-            left,  top,
-            left,  bottom,
-            right, bottom,
+            for (int j = 0; j < worldHeight; j++)
+            {
+                int index = i + j * worldWidth;
 
-            left,  top,
-            right, bottom,
-            right, top
-        };
+                if (!grid[index])
+                    continue;
+
+                float x = cellSize * i;
+                float y = cellSize * j;
+
+                float left   = (x / 750f) * 2f - 1f;
+                float right  = ((x + cellSize) / 750f) * 2f - 1f;
+                float top    = 1f - (y / 450f) * 2f;
+                float bottom = 1f - ((y + cellSize) / 450f) * 2f;
+
+                // Triangle 1
+                vertices.Add(left);
+                vertices.Add(top);
+
+                vertices.Add(left);
+                vertices.Add(bottom);
+
+                vertices.Add(right);
+                vertices.Add(bottom);
+
+                // Triangle 2
+                vertices.Add(left);
+                vertices.Add(top);
+
+                vertices.Add(right);
+                vertices.Add(bottom);
+
+                vertices.Add(right);
+                vertices.Add(top);
+            }
+        }
 
         int vao = GL.GenVertexArray();
         int vbo = GL.GenBuffer();
@@ -47,8 +74,8 @@ class Program : GameWindow
 
         GL.BufferData(
             BufferTarget.ArrayBuffer,
-            vertices.Length * sizeof(float),
-            vertices,
+            vertices.Count * sizeof(float),
+            vertices.ToArray(),
             BufferUsageHint.StreamDraw
         );
 
@@ -68,7 +95,7 @@ class Program : GameWindow
         GL.DrawArrays(
             PrimitiveType.Triangles,
             0,
-            6
+            vertices.Count / 2
         );
 
         GL.DeleteBuffer(vbo);
@@ -120,10 +147,12 @@ class Program : GameWindow
 
     Grid grid;
 
-    public Program(): base(GameWindowSettings.Default, new NativeWindowSettings{ClientSize = new Vector2i(800, 600), Title = "Fast Conways Game of Life"}) 
+    int frameCount = 0;
+    double fpsTimer = 0;
+
+    public Program(): base(GameWindowSettings.Default, new NativeWindowSettings{ClientSize = new Vector2i(750, 450), Title = "Fast Conways Game of Life"}) 
     {
-        grid = new Grid(80, 60, 10);
-        grid.grid[5, 2] = true;
+        grid = new Grid(250, 150, 3);
     }
 
     protected override void OnUpdateFrame(FrameEventArgs args) 
@@ -135,8 +164,24 @@ class Program : GameWindow
     {
         GL.Clear(ClearBufferMask.ColorBufferBit);
 
-        grid.Draw();
+        DrawGrid(
+            grid.grid,
+            250,
+            150,
+            3
+        );
 
         SwapBuffers();
+
+        frameCount++;
+        fpsTimer += args.Time;
+
+        if (fpsTimer >= 1.0f)
+        {
+            Title = $"Fast Conways Game of Life - FPS: {frameCount}";
+
+            frameCount = 0;
+            fpsTimer = 0;
+        }
     }
 }
