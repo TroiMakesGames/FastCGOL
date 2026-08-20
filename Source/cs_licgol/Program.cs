@@ -182,6 +182,7 @@ class Program : GameWindow
 
     protected override void OnRenderFrame(FrameEventArgs args) 
     {
+        /*
         GL.Clear(ClearBufferMask.ColorBufferBit);
 
         DrawGrid(
@@ -190,6 +191,7 @@ class Program : GameWindow
             150,
             3
         );
+        */
 
         SwapBuffers();
         
@@ -208,8 +210,7 @@ class Program : GameWindow
     //writting performance data after finishing
     protected override void OnUnload()
     {
-        /*
-        using (StreamWriter writer = new StreamWriter("data_cs_cgol.txt"))
+        using (StreamWriter writer = new StreamWriter("data_cs_licgol.txt"))
         {
             for (int i = 0; i < generationCount; i++)
             {
@@ -219,6 +220,5 @@ class Program : GameWindow
         }
 
         base.OnUnload();
-        */
     }
 }
