@@ -31,3 +31,4 @@ C:\Users\Admin\Desktop\Projects\FastCGOL_prjct\FastCGOL\Source\cs_cgol\obj\Debug
 C:\Users\Admin\Desktop\Projects\FastCGOL_prjct\FastCGOL\Source\cs_cgol\obj\Debug\net9.0\ref\cs_cgol.dll
 C:\Users\Admin\Desktop\Projects\FastCGOL_prjct\FastCGOL\Source\cs_cgol\bin\Debug\net9.0\Shaders\rectangle.frag
 C:\Users\Admin\Desktop\Projects\FastCGOL_prjct\FastCGOL\Source\cs_cgol\bin\Debug\net9.0\Shaders\rectangle.vert
+C:\Users\Admin\Desktop\Projects\FastCGOL_prjct\FastCGOL\Source\cs_cgol\bin\Debug\net9.0\Assets\seed.txt

@@ -1,5 +1,6 @@
 C:\Users\Admin\Desktop\Projects\FastCGOL_prjct\FastCGOL\Source\cs_cgol\bin\Release\net9.0\win-x64\publish\Shaders\rectangle.frag
 C:\Users\Admin\Desktop\Projects\FastCGOL_prjct\FastCGOL\Source\cs_cgol\bin\Release\net9.0\win-x64\publish\Shaders\rectangle.vert
+C:\Users\Admin\Desktop\Projects\FastCGOL_prjct\FastCGOL\Source\cs_cgol\bin\Release\net9.0\win-x64\publish\Assets\seed.txt
 C:\Users\Admin\Desktop\Projects\FastCGOL_prjct\FastCGOL\Source\cs_cgol\bin\Release\net9.0\win-x64\publish\cs_cgol.exe
 C:\Users\Admin\Desktop\Projects\FastCGOL_prjct\FastCGOL\Source\cs_cgol\bin\Release\net9.0\win-x64\publish\cs_cgol.dll
 C:\Users\Admin\Desktop\Projects\FastCGOL_prjct\FastCGOL\Source\cs_cgol\bin\Release\net9.0\win-x64\publish\cs_cgol.deps.json

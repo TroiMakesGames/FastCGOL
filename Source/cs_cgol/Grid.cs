@@ -1,6 +1,7 @@
 // grid class that manages pretty much everything along the lines of the CGOL implementation
 
 using System;
+using System.IO;    //file reading
 
 class Grid
 {
@@ -26,7 +27,7 @@ class Grid
             (-1,  1), (0,  1), (1,  1)
         };
 
-        /* Initial random seed */
+        /* Initial random seed 
         Random random = new Random();
 
         for (int i = 0; i < worldWidth; i++)
@@ -36,6 +37,16 @@ class Grid
                 int index = i + j * worldWidth;
                 grid[index] = random.Next(2) == 0;
             }
+        }
+        */
+
+        //read from common seed data
+        string seedData = File.ReadAllText("Assets/seed.txt");
+
+        for (int i = 0; i < worldWidth * worldHeight; i++)
+        {
+            if (seedData[i] == '1')
+            {grid[i] = true;}
         }
     }
 

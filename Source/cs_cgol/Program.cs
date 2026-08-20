@@ -6,6 +6,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
 using System.Collections.Generic;
+using System.Diagnostics;   //measuring and logging performance data
 
 class Program : GameWindow
 {
@@ -150,6 +151,12 @@ class Program : GameWindow
     int frameCount = 0;
     double fpsTimer = 0;
 
+    //measuring performance data
+    int generationCount = 0;
+    int maxGenerationCount = 10000;
+    long[] times = new long[10000];
+    Stopwatch stopwatch = new Stopwatch();
+
     public Program(): base(GameWindowSettings.Default, new NativeWindowSettings{ClientSize = new Vector2i(750, 450), Title = "Fast Conways Game of Life"}) 
     {
         grid = new Grid(250, 150, 3);
@@ -157,11 +164,25 @@ class Program : GameWindow
 
     protected override void OnUpdateFrame(FrameEventArgs args) 
     {
+        //end case return
+        if (generationCount >= maxGenerationCount)
+        {
+            Close();
+            return;
+        }
+
+        stopwatch.Restart();
+
         grid.Update();
+
+        stopwatch.Stop();
+        times[generationCount] = stopwatch.ElapsedTicks;
+        generationCount +=1;
     }
 
     protected override void OnRenderFrame(FrameEventArgs args) 
     {
+        /*  rendering removed from proper data collection
         GL.Clear(ClearBufferMask.ColorBufferBit);
 
         DrawGrid(
@@ -172,6 +193,7 @@ class Program : GameWindow
         );
 
         SwapBuffers();
+        */
 
         frameCount++;
         fpsTimer += args.Time;
@@ -183,5 +205,20 @@ class Program : GameWindow
             frameCount = 0;
             fpsTimer = 0;
         }
+    }
+
+    //writting performance data after finishing
+    protected override void OnUnload()
+    {
+        using (StreamWriter writer = new StreamWriter("data_cs_cgol.txt"))
+        {
+            for (int i = 0; i < generationCount; i++)
+            {
+                double milliseconds = (double)times[i] / Stopwatch.Frequency * 1000.0;  //convert stopwatch ticks (long) to miliseconds
+                writer.WriteLine(milliseconds);
+            }
+        }
+
+        base.OnUnload();
     }
 }
