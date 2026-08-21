@@ -74,15 +74,16 @@ acc_cr_licgol_multithreaded = getAccumulated(r"Source/DataProccessing/Data/data_
 
 acc_cs_cgol = getAccumulated(r"Source/DataProccessing/Data/data_cs_cgol.txt")
 acc_cs_licgol = getAccumulated(r"Source/DataProccessing/Data/data_cs_licgol.txt")
+acc_cs_licgol_flagged = getAccumulated(r"Source/DataProccessing/Data/data_cs_licgol_flagged.txt")
 
 #print required worst and best time + comparison
-print(acc_pp_cgol[-1], acc_cs_licgol[-1])
-print("Best is " + str(acc_pp_cgol[-1]/acc_cs_licgol[-1]) + " times better than worst")
+print(acc_pp_cgol[-1], acc_cs_licgol_flagged[-1])
+print("Best is " + str(acc_pp_cgol[-1]/acc_cs_licgol_flagged[-1]) + " times better than worst")
 
 #all = acc_pp_cgol + acc_pp_icgol + acc_pp_licgol + acc_cr_cgol + acc_cr_licgol + acc_cr_licgol_flagged + acc_cr_licgol_atomic + acc_cr_licgol_multithreaded
 #all = acc_pp_icgol + acc_pp_licgol + acc_cr_cgol + acc_cr_licgol + acc_cr_licgol_flagged + acc_cr_licgol_atomic + acc_cr_licgol_multithreaded
 #all = acc_cr_cgol + acc_cr_licgol + acc_cr_licgol_flagged + acc_cr_licgol_atomic + acc_cr_licgol_multithreaded
-all = acc_cr_licgol + acc_cr_licgol_flagged + acc_cr_licgol_atomic + acc_cr_licgol_multithreaded + acc_cs_cgol + acc_cs_licgol
+all = acc_cr_licgol + acc_cr_licgol_flagged + acc_cr_licgol_atomic + acc_cr_licgol_multithreaded + acc_cs_cgol + acc_cs_licgol + acc_cs_licgol_flagged
 highest = max(all)
 
 #set text
@@ -101,6 +102,7 @@ txt_cr_licgol_multithreaded = font.render("cr_licgol_multithreaded", True, (255,
 
 txt_cs_cgol = font.render("cs_cgol", True, (150, 0, 150))
 txt_cs_licgol = font.render("cs_licgol", True, (200, 0, 200))
+txt_cs_licgol_flagged = font.render("cs_licgol_flagged", True, (255, 0, 255))
 
 #WHILE LOOP - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -140,6 +142,7 @@ while running:
 
     drawGraph(acc_cs_cgol, (150, 0, 150), connectDots, 50, 550, 700, 500, highest)
     drawGraph(acc_cs_licgol, (200, 0, 200), connectDots, 50, 550, 700, 500, highest)
+    drawGraph(acc_cs_licgol_flagged, (255, 0, 255), connectDots, 50, 550, 700, 500, highest)
 
     #draw text
     screen.blit(txt_pp_cgol, (60, 60))
@@ -156,6 +159,7 @@ while running:
 
     screen.blit(txt_cs_cgol, (60, 260))
     screen.blit(txt_cs_licgol, (60, 280))
+    screen.blit(txt_cs_licgol_flagged, (60, 300))
 
     # Update the display (buffer flip)
     #displayFPS(screen, 25)
