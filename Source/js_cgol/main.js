@@ -61,6 +61,9 @@ let maxGenCount = 10000;
 let simulationUpdates = 0;
 let simulationLastTime = performance.now();
 
+let times = [];
+let simProperLastTime= performance.now();
+
 /* random seed 
 for (let i = 0; i < grid.grid.length; i++) {
     for (let j = 0; j < grid.grid[i].length; j++) 
@@ -94,6 +97,16 @@ fetch("seed.txt").then(response => response.text()).then(data => {
             simulationLastTime = now;
         }
 
-        postMessage(grid.grid);
+        let timeDiff = now - simProperLastTime;
+        simProperLastTime = now;
+        times.push(timeDiff);
+
+        postMessage({type: "grid", dta: grid.grid});
     }
+
+    /* downloading data removed while debbuging
+    //download data
+    const datta = times.join("\n");
+    postMessage({type: "data", dta: datta});
+    */
 });

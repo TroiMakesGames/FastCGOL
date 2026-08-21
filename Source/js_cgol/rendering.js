@@ -40,12 +40,25 @@ let renderLastTime = performance.now();
 /* simulation worker - get independant simulation state from main.js */
 const worker = new Worker("main.js");
 worker.onmessage = function(event) 
-{grid.grid = event.data;};
+{
+    if (event.data["type"] == "grid")
+    {grid.grid = event.data["dta"];}
+    else if (event.data["type"] == "data")
+    {
+        const blob = new Blob([event.data["dta"]], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "data_js_cgol.txt";
+        a.click();
+
+        URL.revokeObjectURL(url);
+    }
+};
 
 /* rendering loop */
 function gameLoop() 
 {
-    /* rendering removed from data collection
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     grid.Draw();
 
@@ -59,7 +72,6 @@ function gameLoop()
     }
 
     requestAnimationFrame(gameLoop);
-    */
 }
 
 gameLoop();
