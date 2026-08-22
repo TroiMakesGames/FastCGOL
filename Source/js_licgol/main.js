@@ -127,9 +127,7 @@ fetch("seed.txt").then(response => response.text()).then(data => {
         postMessage({type: "grid", dta: grid.grid});
     }
 
-    /* downloading data removed while debbuging
     //download data
     const datta = times.join("\n");
     postMessage({type: "data", dta: datta});
-    */
 });

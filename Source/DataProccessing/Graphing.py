@@ -67,6 +67,7 @@ acc_pp_icgol = getAccumulated(r"Source/DataProccessing/Data/data_pp_icgol.txt")
 acc_pp_licgol = getAccumulated(r"Source/DataProccessing/Data/data_pp_licgol.txt")
 
 acc_js_cgol = getAccumulated(r"Source/DataProccessing/Data/data_js_cgol.txt")
+acc_js_licgol = getAccumulated(r"Source/DataProccessing/Data/data_js_licgol.txt")
 
 acc_cr_cgol = getAccumulated(r"Source/DataProccessing/Data/data_cr_cgol.txt")
 acc_cr_licgol = getAccumulated(r"Source/DataProccessing/Data/data_cr_licgol.txt")
@@ -84,10 +85,12 @@ acc_cs_cgol_shader = getAccumulated(r"Source/DataProccessing/Data/data_cs_cgol_s
 print(acc_pp_cgol[-1], acc_js_cgol[-1])
 print(acc_pp_cgol[-1] / acc_js_cgol[-1])
 
-#all = acc_pp_cgol + acc_pp_icgol + acc_pp_licgol + acc_cr_cgol + acc_cr_licgol + acc_cr_licgol_flagged + acc_cr_licgol_atomic + acc_cr_licgol_multithreaded
+#all = acc_pp_cgol + acc_pp_icgol + acc_pp_licgol + acc_cr_cgol + acc_cr_licgol + acc_cr_licgol_flagged + acc_cr_licgol_atomic + acc_cr_licgol_multithreaded + acc_cs_cgol + acc_cs_licgol + acc_cs_licgol_flagged + acc_cs_cgol_shader + acc_js_cgol + acc_js_licgol
 #all = acc_pp_icgol + acc_pp_licgol + acc_cr_cgol + acc_cr_licgol + acc_cr_licgol_flagged + acc_cr_licgol_atomic + acc_cr_licgol_multithreaded
 #all = acc_cr_cgol + acc_cr_licgol + acc_cr_licgol_flagged + acc_cr_licgol_atomic + acc_cr_licgol_multithreaded
-all = acc_cr_licgol + acc_cr_licgol_flagged + acc_cr_licgol_atomic + acc_cr_licgol_multithreaded + acc_cs_cgol + acc_cs_licgol + acc_cs_licgol_flagged + acc_cs_cgol_shader + acc_js_cgol
+#all = acc_cr_licgol + acc_cr_licgol_flagged + acc_cr_licgol_atomic + acc_cr_licgol_multithreaded + acc_cs_cgol + acc_cs_licgol + acc_cs_licgol_flagged + acc_cs_cgol_shader + acc_js_cgol + acc_js_licgol
+
+all = acc_cr_cgol + acc_cr_licgol + acc_cr_licgol_flagged + acc_cr_licgol_atomic + acc_cr_licgol_multithreaded + acc_cs_cgol + acc_cs_licgol + acc_cs_licgol_flagged + acc_cs_cgol_shader + acc_js_cgol + acc_js_licgol
 highest = max(all)
 
 #set text
@@ -97,7 +100,8 @@ txt_pp_cgol = font.render("pp_cgol", True, (0, 255, 0))
 txt_pp_icgol = font.render("pp_icgol", True, (200, 0, 0))
 txt_pp_licgol = font.render("pp_licgol", True, (255, 0, 0))
 
-txt_js_cgol = font.render("js_cgol", True, (255, 150, 0))
+txt_js_cgol = font.render("js_cgol", True, (150, 75, 0))
+txt_js_licgol = font.render("js_licgol", True, (200, 100, 0))
 
 txt_cr_cgol = font.render("cr_cgol", True, (0, 0, 150))
 txt_cr_licgol = font.render("cr_licgol", True, (0, 0, 200))
@@ -141,7 +145,8 @@ while running:
     drawGraph(acc_pp_icgol, (200, 0, 0), connectDots, 50, 550, 700, 500, highest)
     drawGraph(acc_pp_licgol, (255, 0, 0), connectDots, 50, 550, 700, 500, highest)
 
-    drawGraph(acc_js_cgol, (255, 150, 0), connectDots, 50, 550, 700, 500, highest)
+    drawGraph(acc_js_cgol, (150, 75, 0), connectDots, 50, 550, 700, 500, highest)
+    drawGraph(acc_js_licgol, (200, 100, 0), connectDots, 50, 550, 700, 500, highest)
 
     drawGraph(acc_cr_cgol, (0, 0, 150), connectDots, 50, 550, 700, 500, highest)
     drawGraph(acc_cr_licgol, (0, 0, 200), connectDots, 50, 550, 700, 500, highest)
@@ -159,23 +164,24 @@ while running:
     #draw text
     screen.blit(txt_pp_cgol, (60, 60))
 
-    screen.blit(txt_pp_icgol, (60, 90))
-    screen.blit(txt_pp_licgol, (60, 110))
+    screen.blit(txt_pp_icgol, (60, 80))
+    screen.blit(txt_pp_licgol, (60, 100))
 
-    screen.blit(txt_js_cgol, (60, 140))
+    screen.blit(txt_js_cgol, (60, 120))
+    screen.blit(txt_js_licgol, (60, 140))
 
-    screen.blit(txt_cr_cgol, (60, 170))
-    screen.blit(txt_cr_licgol, (60, 190))
-    screen.blit(txt_cr_licgol_flagged, (60, 210))
+    screen.blit(txt_cr_cgol, (60, 160))
+    screen.blit(txt_cr_licgol, (60, 180))
+    screen.blit(txt_cr_licgol_flagged, (60, 200))
 
-    screen.blit(txt_cr_licgol_atomic, (60, 240))
-    screen.blit(txt_cr_licgol_multithreaded, (60, 260))
+    screen.blit(txt_cr_licgol_atomic, (60, 220))
+    screen.blit(txt_cr_licgol_multithreaded, (60, 240))
 
-    screen.blit(txt_cs_cgol, (60, 290))
-    screen.blit(txt_cs_licgol, (60, 310))
-    screen.blit(txt_cs_licgol_flagged, (60, 330))
+    screen.blit(txt_cs_cgol, (60, 260))
+    screen.blit(txt_cs_licgol, (60, 280))
+    screen.blit(txt_cs_licgol_flagged, (60, 300))
 
-    screen.blit(txt_cs_cgol_shader, (60, 360))
+    screen.blit(txt_cs_cgol_shader, (60, 320))
 
     # Update the display (buffer flip)
     #displayFPS(screen, 25)
