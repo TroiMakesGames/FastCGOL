@@ -1,0 +1,22 @@
+dev note to track what graphs i might want saved as pngs
+
+acc:
+full			                                        all graphs
+full res 200		                                    all graphs 200
+pp all res 200		                                    opt methods comparison
+cr + js all res 200		                                overlap cr js
+cr + js + multi - cr_cgol res 200	                    overlap cr js multi
+cr_flagged + c# all res 200	                            c# in its own league
+pp licgol + cr cgol res 200	                            best pp opt = worst cr
+
+periter:
+full			                                        normal full
+full res 200		                                    clearer full
+pp all res 200		                                    opt methods comparison
+cr cgol vs js cgol		                                stability comparison
+pp cgol vs cr cgol		                                stability comparison
+c# gpu raw		                                        100x100 benchmark 
+cs gpu vs cs flagged res 200 	                        overtake - grid size nature
+
+
+

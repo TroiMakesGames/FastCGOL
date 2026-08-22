@@ -6,6 +6,7 @@ ill get to making my own version at some point but for now i dont really care ab
 import pygame
 from itertools import accumulate
 from pathlib import Path
+import os
 
 
 # =============================================================================
@@ -1453,14 +1454,20 @@ def print_statistics(datasets):
 
 def save_graph(graph):
 
-    filename = "Graph.png"
+    base_name = "Graph"
+    extension = ".png"
 
+    filename = f"{base_name}{extension}"
+    counter = 1
+
+    while os.path.exists(filename):
+        filename = f"{base_name}_{counter}{extension}"
+        counter += 1
 
     pygame.image.save(
         graph.surface,
         filename
     )
-
 
     print(
         f"Saved graph to {filename}"
