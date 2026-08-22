@@ -59,6 +59,7 @@ worker.onmessage = function(event)
 /* rendering loop */
 function gameLoop() 
 {
+    /*
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     grid.Draw();
 
@@ -72,6 +73,7 @@ function gameLoop()
     }
 
     requestAnimationFrame(gameLoop);
+    */
 }
 
 gameLoop();

@@ -142,8 +142,6 @@ fetch("seed.txt").then(response => response.text()).then(data => {
     }
 
     //download data
-    /*
     const datta = times.join("\n");
     postMessage({type: "data", dta: datta});
-    */
 });
