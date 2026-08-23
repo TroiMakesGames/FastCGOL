@@ -18,7 +18,7 @@ The collected data is in a format of time in miliseconds required to compute 1 i
 
 Instead of writting every iteration, the measured time was stored in a simple array each iteration and after the simulation ended the array was compiled into proper floats and written to a data.txt file of that specific implementation. <br>
 
-Each implementation used pre-generated starting world seed data which was initialy generated using Pythons seed, from which it was put into a seed.txt file and read by all other implementations. (since the standard seed modules/libraries of all the languages/frameworks doesnt generate the same world for the same seed i had to generate from one seed and load generated data from a specific save file) <br>
+Each implementation used pre-generated starting world seed data of 250 by 150 cell dimensions which was initialy generated using Pythons seed, from which it was put into a seed.txt file and read by all other implementations. (since the standard seed modules/libraries of all the languages/frameworks doesnt generate the same world for the same seed i had to generate from one seed and load generated data from a specific save file) <br>
 
 The specific seed data used reaches just under 10k generations before it stops changing (only independant oscilators left), so i had each implementation run for 10k iterations. <br>
 
@@ -73,10 +73,28 @@ This object type and the operations it brings with it, although very intuitive a
 This simple replacement changed the operation cost by a large amount, and a great performance increase was reached ... therefore i decided to use the LICGOL flagged optimisation method in all future implementations, as they all had expensive object types in place of the unordered_set.
 <div align="center"><img src="Graph_PNGs/cr_js_overlap_200.png" width="80%"></div>
 
-## C++ multithreading
+## C++ CPU multithreading
+The next graph also includes the 2 implementations connected to multithreading. The firs of the 2, the atomic implementation, is a direct modification of the LICGOL flagged implementation, specificaly made to support multithreading. Multihtreading at 4 cores has the potential to improve the simulation performance by 4 times, but its not that straightforward, because multoihtreading created some weird problems, specificaly snychronisation issues. <br>
+
+In order to support multithreading and fix up these read/write issues of async computing, atomic variables were put in place (thats what the atomic implementation is for). Im not going to dive into what atomic vars are, but the general idea is that when an atomic bool is read, it is also immediatly toggled, meaning that if 2 threads had a race condition at a certain bool and the first thread read the bool as true and wanted to toggle it as soon as possible (for example in the flag 2D array of the flagged optimisation method), the second thread wont read the same bool as true before the first could finish toggling to false... and a race condition error is avoidede. Atomic bools do fix this issue, but since they are more complex object types, with more expensive operations, they also redeuce the overall performance. So the atomic implementation was expected to perform slightly worse than the flagged, with the hopes that multithreading would bring a net positive performance increase. <br>
+
+But unfortunately, the performance reduction of atomic vars was larger than the performance increase of multithreading and the resulting performance of the multithreading implementation was overall worse than the simple flagged implementation.
 <div align="center"><img src="Graph_PNGs/cr_multi_js_overlap_200.png" width="80%"></div>
 
-## cr flagged + c# all res 200
+## C# OpenTK + GPU Shader accelaration
+The final cumulative graph includes the C# OpenTK implementatioins and the GPU accelarated shader implementation, alongside the best performing implementation by that point (C++ flagged). <br>
+
+The surprising results show that C# is much faster than C++ at a simple task such as conways game of life simulation logic. C#'s naive default implementation performed around 30% better than the best C++ implementation. I imagine this is largly due to the performance improvements of the C# garbage collector, the more low-level nature of the primary C# object types like int and bool arrays and the .NET9 JIT-compiler, that generates highly specialised machine code at runtime, when it has acces to a much clearer display of what operations are being done and can optimise them more strictly, unlike C++, which has a single GCC compilation and no runtime optimisation. <br>
+
+This observation doesnt directly mean that C# is just generaly better than C++, it only shows the performance of a task such as conways game of life, at which i would acctualy say that C# has a clearer advantage, simply because of the simplicity of the operations, which makes the performance largely related to large scale operations instead of low scale high complexity operations. <br>
+
+The GPU shader implementation is by far the best performing compared to all other implementations. It finished in around 1 second and ran 790 times faster than the baseline naive unoptimised Python Pygame implementation. To take this into perspective, if a single simulation took the baseline implementation 2 years to complete, it would take the GPU shader implementation less than a day to finish.
+
+BUT there is a very big issue with the GPU shader implementation ... due to async computing issues previously mentioned in C++ CPU multithreading, the implementation uses the naive unoptimised C# implementation as a base ... which measn that ALL irrelevant space is also computed ... so in a world of 10k by 10k cells, the GPU shader mplementation would have to compute 100 million cells, no matter the active cell count, whereas an optimised base implementation, such as C# LICGOL flagged, could run an infinite world size as long as the relevant cell count is managable. <br>
+
+In practice this means that the C# GPU shader accelarated optimisation isnt the only best implementation, and that the second best C# LICGOL flagged is realisticaly very close. It all comes down to the context of the use case. In a tiny limited world like the one used in the data collection (250x150) the GPU implementation performs 2 times better than the C# flagged implementation, but in the context of a larger scarsely populated world of 10k by 10k cells, where only a couple thousand might be relevant, the C# flagged implementation would take over very quickly. <br>
+
+So to conclude what language, framework and optimisation method is best at running conways game of life - if the goal is to make an interactive world with no limits, where active cells are drawn by the user (so there isnt a huge amount of live cells) the C# flagged implementation is best, but if the goal is to run a tiny world where the relevant cell count is a large percentage of the world, the C# GPU shader accelarated implementation is by far the fastest. <br>
 <div align="center"><img src="Graph_PNGs/c%23_own_league_200.png" width="80%"></div>
 
 <!-- Per iteration graphs -->
