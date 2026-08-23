@@ -113,23 +113,45 @@ So to conclude what language, framework, and optimisation method is best at runn
 
 <!-- Per iteration graphs -->
 
-## periter full
-<div align="center"><img src="Graph_PNGs/periter_full.png" width="80%"></div>
+## Time per iteration graphs
+The second format of graphs i decided to analyse is a format of time required in miliseconds to compute only the n-th generation, instead of total time to reach that generation. <br>
 
-## periter full res 200
-<div align="center"><img src="Graph_PNGs/periter_full_200.png" width="80%"></div>
+This graph format specificaly focuses on the stability of implementations, but since most of the implementations have a relatively wide range of time required i also included data point grouping at 200 data points per graph point, so the general performance of different implementations is more clear (when we look at the performance of multiple different implementations, not their range of stability).<br>
 
-## periter pp all res 200
-<div align="center"><img src="Graph_PNGs/periter_pp_200.png" width="80%"></div>
+The initial clear observation looking at all the graphs is that the ICGOL, LICGOL, LICGOL flagged and LICGOL multithreaded all have an inconsistent time requirement per iteration. This is due to computing being dependant on the relevant cell count in these implementations, as was mentioned previously when comparing Python LICGOL and C++ unoptimised cumulative graphs.<br>
 
-## cr vs pp stability
-<div align="center"><img src="Graph_PNGs/periter_cr_vs_pp_stability.png" width="80%"></div>
+The next obvious observation is the stability of each graph, represented by the difference between the local minimum and maximum required times. The most varying performance is seen with the unoptimised Python implementation, which has a surprisingly large range of about -40% less and +10% more than the grouping avarage of 200 data points.
+<div align="center"><img src="Graph_PNGs/periter_full.png" style="height:300px; object-fit:contain;"><img src="Graph_PNGs/periter_full_200.png" style="height:300px; object-fit:contain;"></div>
 
-## cr vs js stability
+Taking a look at unoptimised C++ and JavaScript, specificaly because of how interesting their compared results are, we can see that although JavaScript performs better, it is also much more unstable, with noticable valleys but much higher peaks in the time requirements. This strange behaviour is explained by the extra tasks/requirements by the browser, specificaly Chrome, like rendering the localy hosted website, checking for additional user inputs and the simulation not having direct acces to the CPU. Additionaly, the JIT compiler runtime improvements cause extra disturbance, which is confirmed by the C# implementations also having similar behaviour of unnaturaly high peaks (since both Chrome and .NET use the runtime JIT compiler).
 <div align="center"><img src="Graph_PNGs/periter_cr_vs_js_stability.png" width="80%"></div>
 
-## cs shader benchmark groupin
+## C# GPU shader implementations benchmark data collection grouping
+Its important to note, that even observing the simulation introduces new problems and inconsistencies in performance. Due to the nature of asynchronus computing, having to store the benchmark data while the simulation is running is especialy challanging with GPU accelaration and multithreading. <br>
+
+For the C# GPU shader implementation specificaly, i had to seperate the benchmarking/measuring from the acctual computation that was being performed on the GPU since checking the completion of one generation on the CPU was completely independant from the rest of the conways game of life logic computing. This means that if i were to store the required time per iteration for each iteration, i would have very unstable and inconsistent results, therefore, to reduce the inconsistencies, i tracked the accumulated time of 100 generations, and stored the avarage after each 100 generations ... so its similar to what the data point grouping within the graphing engine is doing to clear stability, but done for a different reason. <br>
+
+Unfortunately, as mentioned during the introduction of the data point grouping of the graphing engine, this practice does lose detail, specificaly the stability, but although its improper to compare the stability of this implementation with any other implementation, this does improve the overall results of the data and somewhat fixes the async GPU runtime reading problems. <br>
+
+Since the grouping is done at a resolution of 100 generations per read, the resulting graph has a very distinct shape of a column graph
 <div align="center"><img src="Graph_PNGs/periter_cs_shader_benchmark_grouping.png" width="80%"></div>
 
-## cs shader vs cs flagged overtake
+## C# flagged already overtakes the C# GPU shader implementation
+As mentioned during the first efficiency comparions of the C# GPU accelarated and C# flagged implementations, the flagged implementation has an advantage in a scarcely populated world. Understanding at which point the flagged implementation becomes more efficient is relatively hard from all previous graphs, but this comparison shows that, even at a tiny world scale of 250 by 150, in the final few iterations the GPU already performed worse. This means that all my previous mentions of 10k by 10k worlds was a largly overestimated guess ... the fine line is acctualy much closer to 250 by 150.
 <div align="center"><img src="Graph_PNGs/periter_cs_flagged_vs_cs_shader_overtake_200.png" width="80%"></div>
+
+## Possible error introduction
+All of the data and observations must be taken with a grain of salt and it shouldnt be understood as the factual results, simply because there are so many variables that change the outcome of each implementations efficiency, but it should serve as a baseline of understanding why a certain stack performs better or worse than a different stack. <br>
+
+Some of the reasons why there could be be errors are:
+- **Inconsistent implementation standard**: The procces of implementing all of the various stacks took multiple hours over the span of around 2-3 months, so my personal understanding and standard of how the conways game of life simulation works and how its implemented changed drasticaly. This can also be seen by the fact that the Python stack doesnt include a flagged LICGOL implementation, and possibly why javascript might have an advantage over C++ as it was implemented last. To give an example of this error ... by the time i came to javascript, my standard of implementation already included the grid state variable as a 1 dimensional array of bools instead of a 2 dimensional array of 0 or 1 ints, which is generaly a less expensive object type.
+  
+- **Inconsistent builds and interpreter environments**: each implementation came with its own executable builds and compiling, which undeniably gives C++ and C# an unfaird advantage over Javascript and Python
+  
+- **Data collection ran only once**: For each implementation i only performed one instance of data collection and got 1 dataset, instead of running multiple and finding the avarage or maybe just putting all of the datasets of one implementation on the graph ... (now that i think about it this would have introduced another property to look at ... stability per instance of computing) ... the reason for that is mainly because when i started this project with only 3 python implementations i didnt expect to dive into 3 other stacks, so i used a simple .txt file instead of something like CSVs
+  
+- **Hardware**: i ran all of the implementations on the same PC that has an Intel Core i7-6700 CPU and a 128MB Intel HD 350 Graphics card. Under this category id also like to include the browser (Chrome) and the virtual environemnt for Python (VS Code IDE), which may or may not have effected the results
+  
+- **External reading/writting**: i would specificaly like to mention the use of reading from a .txt file to load the initial starting world data on all implementations except for Pythons, which used its seed module to generated the file data in the first place, and the effects of collecting benchmark data which caused additional disruption, as already mentioned during the showcase of C# GPU shader implementations non-accumulative graph (100 data point grouping already performed during data collection)
+  
+- **World simulation size**: all of the implementations ran on a 250 by 150 grid. To get more detailed results i should have also included larger grids.
