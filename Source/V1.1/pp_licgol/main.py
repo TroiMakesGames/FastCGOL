@@ -110,12 +110,29 @@ times = []
 generationCount = 0
 maxGenerationCount = 10000
 
+"""
 #randomly gemnerate world
 for i in range(wolrdWidth):
     for j in range(worldHeight):
         rChoice = random.choice([0, 1, 2, 3, 4, 5])
         if rChoice == 0:
             world[i][j] = 1
+"""
+
+#load world from seed - first change curr working dir to this script for paths
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+contents = ""
+with open("../seed.txt", "r") as file:
+    contents = file.read()
+
+for i in range(len(contents)):
+    #get cell pos
+    cellX = i % wolrdWidth
+    cellY = i // wolrdWidth
+
+    world[cellX][cellY] = int(contents[i])
 
 running = True
 while running and generationCount < maxGenerationCount:
