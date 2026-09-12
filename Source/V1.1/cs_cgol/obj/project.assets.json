@@ -615,11 +615,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Admin\\Desktop\\Projects\\FastCGOL_prjct\\FastCGOL\\Source\\cs_cgol\\cs_cgol.csproj",
+      "projectUniqueName": "C:\\Users\\Admin\\Desktop\\Projects\\FastCGOL_prjct\\FastCGOL\\Source\\V1.1\\cs_cgol\\cs_cgol.csproj",
       "projectName": "cs_cgol",
-      "projectPath": "C:\\Users\\Admin\\Desktop\\Projects\\FastCGOL_prjct\\FastCGOL\\Source\\cs_cgol\\cs_cgol.csproj",
+      "projectPath": "C:\\Users\\Admin\\Desktop\\Projects\\FastCGOL_prjct\\FastCGOL\\Source\\V1.1\\cs_cgol\\cs_cgol.csproj",
       "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Admin\\Desktop\\Projects\\FastCGOL_prjct\\FastCGOL\\Source\\cs_cgol\\obj\\",
+      "outputPath": "C:\\Users\\Admin\\Desktop\\Projects\\FastCGOL_prjct\\FastCGOL\\Source\\V1.1\\cs_cgol\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

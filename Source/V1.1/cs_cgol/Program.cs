@@ -157,9 +157,14 @@ class Program : GameWindow
     long[] times = new long[10000];
     Stopwatch stopwatch = new Stopwatch();
 
-    public Program(): base(GameWindowSettings.Default, new NativeWindowSettings{ClientSize = new Vector2i(750, 450), Title = "Fast Conways Game of Life"}) 
+    public Program(): base(GameWindowSettings.Default, new NativeWindowSettings{ClientSize = new Vector2i(GetWorldSize(), GetWorldSize()), Title = "Fast Conways Game of Life"}) 
+    {grid = new Grid(GetWorldSize(), GetWorldSize(), 1);}
+
+    static int GetWorldSize()
     {
-        grid = new Grid(250, 150, 3);
+        string seedData = File.ReadAllText("Assets/seed.txt");
+        string filtered = seedData.Replace("\n", "");
+        return (int)Math.Round(Math.Sqrt(filtered.Length));
     }
 
     protected override void OnUpdateFrame(FrameEventArgs args) 

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("cs_licgol_flagged")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3cc3f5d06c78d724a4c7cba7a95e26cc0b5a945d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3b83d3fb03384f2707547c512d5c8ecbafcab2d0")]
 [assembly: System.Reflection.AssemblyProductAttribute("cs_licgol_flagged")]
 [assembly: System.Reflection.AssemblyTitleAttribute("cs_licgol_flagged")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

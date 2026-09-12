@@ -27,8 +27,8 @@ class Program : GameWindow
     static int fullscreenVao;
 
     //removing hardcoded world resolution
-    const int WorldWidth = 250;
-    const int WorldHeight = 150;
+    static int WorldWidth;
+    static int WorldHeight;
 
     //since GPU included or not differs so much, use a flag to determine
     const bool benchmarkMode = true;
@@ -155,9 +155,19 @@ class Program : GameWindow
     long[] times = new long[10000 / benchmarkGroupSize];
     Stopwatch stopwatch = new Stopwatch();
 
-    public Program(): base(GameWindowSettings.Default, new NativeWindowSettings{ClientSize = new Vector2i(750, 450), Title = "Fast Conways Game of Life"}) 
+    public Program(): base(GameWindowSettings.Default, new NativeWindowSettings{ClientSize = new Vector2i(GetWorldSize(), GetWorldSize()), Title = "Fast Conways Game of Life"}) 
     {
-        grid = new Grid(250, 150, 3);
+        grid = new Grid(GetWorldSize(), GetWorldSize(), 1);
+
+        WorldWidth = GetWorldSize();
+        WorldHeight = GetWorldSize();
+    }
+
+    static int GetWorldSize()
+    {
+        string seedData = File.ReadAllText("Assets/seed.txt");
+        string filtered = seedData.Replace("\n", "");
+        return (int)Math.Round(Math.Sqrt(filtered.Length));
     }
 
     protected override void OnUpdateFrame(FrameEventArgs args) 

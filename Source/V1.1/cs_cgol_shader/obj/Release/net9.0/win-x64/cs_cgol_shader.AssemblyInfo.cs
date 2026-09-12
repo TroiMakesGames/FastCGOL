@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("cs_cgol_shader")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2b50cf60bfdc6654be7a3c3e98e36abc4c7a343a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3b83d3fb03384f2707547c512d5c8ecbafcab2d0")]
 [assembly: System.Reflection.AssemblyProductAttribute("cs_cgol_shader")]
 [assembly: System.Reflection.AssemblyTitleAttribute("cs_cgol_shader")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -6,11 +6,23 @@ random.seed(50)
 
 import time     #fps display
 
+#load from seed
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+contents = ""
+with open("../seed.txt", "r") as file:
+    contents = file.read()
+contents = contents.replace("\n", "")
+
+import math
+size = round(math.sqrt(len(contents)))
+
 #------------------------------------------------------------------------------------------------------------------------------------
 #world setup
-wolrdWidth = 250
-worldHeight = 150
-drawnCellSize = 3
+wolrdWidth = size
+worldHeight = size
+drawnCellSize = 1
 #------------------------------------------------------------------------------------------------------------------------------------
 
 pygame.init()
@@ -119,14 +131,7 @@ for i in range(wolrdWidth):
             world[i][j] = 1
 """
 
-#load world from seed - first change curr working dir to this script for paths
-import os
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
-contents = ""
-with open("../seed.txt", "r") as file:
-    contents = file.read()
-
+#load world from seed
 for i in range(len(contents)):
     #get cell pos
     cellX = i % wolrdWidth

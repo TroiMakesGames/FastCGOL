@@ -7,6 +7,8 @@
 #include <memory>               //same
 #include <chrono>           //performance tracking
 
+#include <algorithm>    //filtering newline chars
+
 //set randomness stuff
 std::random_device rd;
 std::mt19937 gen(rd());
@@ -26,6 +28,25 @@ void LoadSeed(const std::string& filename, int* grid, int width, int height)
         for (int i = 0; i < size && i < (int)line.size(); i++)
         {grid[i] = line[i] - '0';}
     }
+}
+
+int GetWorldSize(const std::string& filename)
+{
+    std::ifstream file(filename);
+
+    if (!file) {
+        std::cerr << "Could not open file\n";
+        return 1;
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    std::string contents = buffer.str();
+    contents.erase(std::remove(contents.begin(), contents.end(), '\n'), contents.end());
+
+    int size = std::round(std::sqrt(contents.size()));
+
+    return size;
 }
 
 class Grid 
@@ -213,15 +234,14 @@ class Grid
 
 int main() {
     //screen initialisation
-    const int WIDTH = 750;
-    const int HEIGHT = 450;
+    const int WIDTH = GetWorldSize("../seed.txt");
+    const int HEIGHT = GetWorldSize("../seed.txt");
     InitWindow(WIDTH, HEIGHT, "Fast Conways Game of Life");
     SetTargetFPS(0);
 
     //variable initialisation
 
-    int cellSize = 3;
-    Grid grid = Grid(WIDTH, HEIGHT, cellSize);
+    Grid grid = Grid(GetWorldSize("../seed.txt"), GetWorldSize("../seed.txt"), 1);
     //grid.grid[grid.worldWidth * 7 + 11] = 1;
 
     //track generation count to stop at a certain state

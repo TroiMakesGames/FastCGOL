@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("cs_cgol")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e0319e7609ac472cc25a7303bce0c138d19267bf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3b83d3fb03384f2707547c512d5c8ecbafcab2d0")]
 [assembly: System.Reflection.AssemblyProductAttribute("cs_cgol")]
 [assembly: System.Reflection.AssemblyTitleAttribute("cs_cgol")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

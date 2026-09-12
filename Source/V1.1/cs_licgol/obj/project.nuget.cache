@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "fMSMal/gYdA=",
+  "dgSpecHash": "iP+P1U17mVI=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Admin\\Desktop\\Projects\\FastCGOL_prjct\\FastCGOL\\Source\\cs_licgol\\cs_licgol.csproj",
+  "projectFilePath": "C:\\Users\\Admin\\Desktop\\Projects\\FastCGOL_prjct\\FastCGOL\\Source\\V1.1\\cs_licgol\\cs_licgol.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\opentk\\4.9.4\\opentk.4.9.4.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\opentk.audio.openal\\4.9.4\\opentk.audio.openal.4.9.4.nupkg.sha512",
