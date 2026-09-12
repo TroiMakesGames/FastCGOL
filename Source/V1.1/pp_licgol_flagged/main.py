@@ -158,6 +158,8 @@ while running and generationCount < maxGenerationCount:
     world, active = updateWorld(world, active)
     end = time.perf_counter()
 
+    generationCount += 1
+
     #track time data localy
     ms = (end - start) * 1000
     times.append(ms)

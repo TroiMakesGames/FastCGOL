@@ -139,6 +139,8 @@ while running and generationCount < maxGenerationCount:
     world = updateWorld(world)
     end = time.perf_counter()
 
+    generationCount += 1
+
     #draw world
     #drawWorld()
 
