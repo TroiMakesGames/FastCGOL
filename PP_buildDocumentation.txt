@@ -1,0 +1,3 @@
+# pyinstaller --onefile --windowed main.py   outdated
+
+python -m nuitka --standalone --onefile --windows-console-mode=disable main.py
