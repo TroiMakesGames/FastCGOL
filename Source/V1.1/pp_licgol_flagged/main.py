@@ -165,7 +165,7 @@ while running and generationCount < maxGenerationCount:
     times.append(ms)
 
     #draw world
-    drawWorld()
+    #drawWorld()
 
     #display fps in the window caption
     current_time = time.time()
