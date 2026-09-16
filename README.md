@@ -33,7 +33,7 @@ The graphing engine is made so that it always normalises to the worst-performing
 
 On the right of the graph, you can also see which implementation is shown and with what colour it is represented. <br>
 
-<div align="center"><img src="Graph_PNGs/full.png" width="80%"></div>
+<div align="center"><img src="GraphPNGs/V1.1/full.png" width="80%"></div>
 
 ## All implementations - cumulative time graph at 200 resolution average
 
@@ -41,7 +41,7 @@ The following graph is the same as the previous, but with one major difference: 
 
 Note that this practice does reduce the actual accuracy of the graph for stable datasets, but since there are some very unstable graphs in the future, I implemented it to make it clearer ... the data loss will be acknowledged when it matters. <br>
 
-<div align="center"><img src="Graph_PNGs/full_200.png" width="80%"></div>
+<div align="center"><img src="GraphPNGs/V1.1/full_200.png" width="80%"></div>
 
 ## Python Pygame implementations
 
@@ -53,7 +53,7 @@ The dark red and bright red are the 1st (ICGOL) and 2nd (LICGOL) layers of optim
 
 The main noticeable observation from this graph is how much better the optimised implementations perform... the 2nd layer is roughly 10 times faster than the baseline. In practice, this means that if it took 14 minutes to compute the baseline simulation, it would only take around 1.4 minutes to compute the simulation using an optimised method ... this is already a large improvement, but I was able to reach much better performance. <br>
 
-<div align="center"><img src="Graph_PNGs/pp_200.png" width="80%"></div>
+<div align="center"><img src="GraphPNGs/V1.1/pp_200.png" width="80%"></div>
 
 ## First C++ Raylib implementation, compared to the best Python implementation
 
@@ -65,7 +65,7 @@ The immediate observation is that although the language might be a very importan
 
 Another observation, which is noticeable in the previous graphs already, but is the clearest on this comparison, is the steepness-changing nature of the optimised method ... the start of the simulation has a slower performance than the end of the optimisation (this is shown by the steepness of the graph). This is explainable by the nature of the optimisation method, which performs better with less active cells ... and since the Conway's Game of Life simulation had a reduced number of relevant cells over time, the optimisation method was able to benefit more at the end.
 
-<div align="center"><img src="Graph_PNGs/pp_best_vs_cr_worst_200.png" width="80%"></div>
+<div align="center"><img src="GraphPNGs/V1.1/pp_best_vs_cr_worst_200.png" width="80%"></div>
 
 ## C++ compared to JavaScript
 
@@ -81,7 +81,7 @@ This object type and the operations it brings with it, although very intuitive a
 
 This simple replacement changed the operation cost by a large amount, and a great performance increase was reached ... therefore I decided to use the LICGOL flagged optimisation method in all future implementations, as they all had expensive object types in place of the unordered_set.
 
-<div align="center"><img src="Graph_PNGs/cr_js_overlap_200.png" width="80%"></div>
+<div align="center"><img src="GraphPNGs/V1.1/cr_js_overlap_200.png" width="80%"></div>
 
 ## C++ CPU multithreading
 
@@ -91,7 +91,7 @@ In order to support multithreading and fix up these read/write issues of async c
 
 But unfortunately, the performance reduction of atomic vars was larger than the performance increase of multithreading, and the resulting performance of the multithreading implementation was overall worse than the simple flagged implementation.
 
-<div align="center"><img src="Graph_PNGs/cr_multi_js_overlap_200.png" width="80%"></div>
+<div align="center"><img src="GraphPNGs/V1.1/cr_multi_js_overlap_200.png" width="80%"></div>
 
 ## C# OpenTK + GPU Shader acceleration
 
@@ -109,7 +109,7 @@ In practice, this means that the C# GPU shader accelerated optimisation isn't th
 
 So to conclude what language, framework, and optimisation method is best at running Conway's Game of Life - if the goal is to make an interactive world with no limits, where active cells are drawn by the user (so there isn't a huge amount of live cells), the C# flagged implementation is best, but if the goal is to run a tiny world where the relevant cell count is a large percentage of the world, the C# GPU shader accelerated implementation is by far the fastest. <br>
 
-<div align="center"><img src="Graph_PNGs/c%23_own_league_200.png" width="80%"></div>
+<div align="center"><img src="GraphPNGs/V1.1/c%23_own_league_200.png" width="80%"></div>
 
 <!-- Per iteration graphs -->
 
@@ -123,11 +123,11 @@ The initial clear observation looking at all the graphs is that the ICGOL, LICGO
 
 The next obvious observation is the stability of each graph, represented by the difference between the local minimum and maximum required times. The most varying performance is seen with the unoptimised Python implementation, which has a surprisingly large range of about -40% and +10% around the grouping average of 200 data points.
 
-<div align="center"><img src="Graph_PNGs/periter_full.png" style="height:300px; object-fit:contain;"><img src="Graph_PNGs/periter_full_200.png" style="height:300px; object-fit:contain;"></div>
+<div align="center"><img src="GraphPNGs/V1.1/periter_full.png" style="height:300px; object-fit:contain;"><img src="GraphPNGs/V1.1/periter_full_200.png" style="height:300px; object-fit:contain;"></div>
 
 Taking a look at unoptimised C++ and JavaScript, specifically because of how interesting their compared results are so far, we can see that although JavaScript performs better, it is also much more unstable, with noticeable valleys but much higher peaks in the time requirements. This strange behaviour is explained by the extra tasks/requirements by the browser, specifically Chrome, like rendering the locally hosted website, checking for additional user inputs, and the simulation not having direct access to the CPU. Additionally, the JIT compiler runtime improvements cause extra disturbance, which is confirmed by the C# implementations also having similar behaviour of unnaturally high peaks (since both Chrome and .NET use the runtime JIT compiler).
 
-<div align="center"><img src="Graph_PNGs/periter_cr_vs_js_stability.png" width="80%"></div>
+<div align="center"><img src="GraphPNGs/V1.1/periter_cr_vs_js_stability.png" width="80%"></div>
 
 ## C# GPU shader implementations benchmark data collection grouping
 
@@ -139,13 +139,13 @@ Unfortunately, as mentioned during the introduction of the data point grouping o
 
 Since the grouping is done at a resolution of 100 generations per read, the resulting graph has a very distinct shape of a column graph.
 
-<div align="center"><img src="Graph_PNGs/periter_cs_shader_benchmark_grouping.png" width="80%"></div>
+<div align="center"><img src="GraphPNGs/V1.1/periter_cs_shader_benchmark_grouping.png" width="80%"></div>
 
 ## C# flagged already overtakes the C# GPU shader implementation
 
 As mentioned during the first efficiency comparisons of the C# GPU accelerated and C# flagged implementations, the flagged implementation has an advantage in a scarcely populated world. Understanding at which point the flagged implementation becomes more efficient is relatively hard from all previous graphs, but this comparison shows that, even at a tiny world scale of 250 by 150, in the final few iterations the GPU already performed worse. This means that all my previous mentions of 10k by 10k worlds was a largely overestimated guess ... the fine line is actually much closer to 250 by 150.
 
-<div align="center"><img src="Graph_PNGs/periter_cs_flagged_vs_cs_shader_overtake_200.png" width="80%"></div>
+<div align="center"><img src="GraphPNGs/V1.1/periter_cs_flagged_vs_cs_shader_overtake_200.png" width="80%"></div>
 
 ## Possible error introduction
 
