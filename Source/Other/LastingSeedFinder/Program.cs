@@ -24,8 +24,8 @@ class Program : GameWindow
     static int fullscreenVao;
 
     //removing hardcoded world resolution
-    const int WorldWidth = 1600;
-    const int WorldHeight = 1600;
+    const int WorldWidth = 400;
+    const int WorldHeight = 400;
 
     int generationCount = 0;
     int simCount = 1;
