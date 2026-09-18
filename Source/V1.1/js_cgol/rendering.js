@@ -32,7 +32,7 @@ class Grid_rendering
 }
 
 /* obj instantiation */
-const grid = new Grid_rendering(250, 150, 3);
+const grid = new Grid_rendering(1600, 1600, 1);
 
 let renderFrames = 0;
 let renderLastTime = performance.now();
@@ -59,6 +59,7 @@ worker.onmessage = function(event)
 /* rendering loop */
 function gameLoop() 
 {
+    /*
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     grid.Draw();
 
@@ -72,6 +73,7 @@ function gameLoop()
     }
 
     requestAnimationFrame(gameLoop);
+    */
 }
 
 gameLoop();

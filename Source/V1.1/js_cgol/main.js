@@ -54,7 +54,7 @@ class Grid_simulation
 }
 
 /* obj instantiation */
-const grid = new Grid_simulation(250, 150);
+const grid = new Grid_simulation(1600, 1600);
 let genCount = 0;
 let maxGenCount = 10000;
 
@@ -104,9 +104,7 @@ fetch("seed.txt").then(response => response.text()).then(data => {
         postMessage({type: "grid", dta: grid.grid});
     }
 
-    /* downloading data removed while debbuging
     //download data
     const datta = times.join("\n");
     postMessage({type: "data", dta: datta});
-    */
 });
