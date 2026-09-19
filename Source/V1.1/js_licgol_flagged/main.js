@@ -91,7 +91,7 @@ class Grid_simulation
 }
 
 /* obj instantiation */
-const grid = new Grid_simulation(250, 150);
+const grid = new Grid_simulation(1600, 1600);
 let genCount = 0;
 let maxGenCount = 10000;
 

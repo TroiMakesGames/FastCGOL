@@ -32,7 +32,7 @@ class Grid_rendering
 }
 
 /* obj instantiation */
-const grid = new Grid_rendering(250, 150, 3);
+const grid = new Grid_rendering(1600, 1600, 1);
 
 let renderFrames = 0;
 let renderLastTime = performance.now();
