@@ -61,6 +61,7 @@ class DataInstance
         std::string sizeTag;
 
         std::vector<float> timeData;
+        std::vector<Vector2> points[10000];
 
     public:
     DataInstance(std::string rawData) {
@@ -92,6 +93,31 @@ class DataInstance
         else if (languageTag == "cs")
         {languageName = "C# OpenTK";}
     }
+
+    void recalculatePoints(int graphWidth, int graphHeight, float maxTimeData)
+    {
+        float widthPerIndex = graphWidth / 10000;
+        float yPerTimeUnit = graphHeight / maxTimeData;
+
+        for (int i = 0; i < timeData.size() - 1; i++)
+        {points[i] = {widthPerIndex * i, yPerTimeUnit * timeData[i]};}
+    }
+
+    void draw()
+    {
+        for (int i = 0; i < points.size() - 1; i++)
+        {
+            //get curr and next point
+            Vector2 p1 = points[i];
+            Vector2 p2 = points[i + 1];
+
+            //get screen pos
+            p1 = viewport.worldToScreenPos(p1);
+            p2 = viewport.worldToScreenPos(p2);
+
+            DrawLine(p1.x, p1.y, p.x, p2.y, RED);
+        }
+    }
 };
 
 int main() 
@@ -109,11 +135,7 @@ int main()
     Viewport viewport = Viewport(Vector2(0, 0), 10, 0.05f, 0.05f, 5);
 
     DataInstance dta1 = DataInstance(readCSV_line("../../Data_V1.2/csv_periter.csv", 0));
-
-    Vector2 objectPosition = Vector2(50, 50);
-    Vector2 objectScreenPos = viewport.worldToScreenPos(objectPosition);
-    Vector2 objectScale = Vector2(10, 20);
-    Vector2 objectScreenScale = viewport.worldToScreenScale(objectScale);
+    dta1.recalculatePoints(800, 400, *std::max_element(dta1.timeData.begin(), dta1.timeData.end()));
 
     //adjust viewport zoom so that on start it doesnt draw cells too large
     viewport.zoom = 0.35f;
@@ -125,14 +147,11 @@ int main()
         viewport.move(GetFrameTime());
         viewport.zoomCamera();
 
-        objectScreenPos = viewport.worldToScreenPos(objectPosition);
-        objectScreenScale = viewport.worldToScreenScale(objectScale);
-
         // draw
         BeginDrawing();
         ClearBackground(Color{30, 30, 30, 255});
 
-        DrawRectangle(objectScreenPos.x - objectScreenScale.x/2, objectScreenPos.y - objectScreenScale.y/2, objectScreenScale.x, objectScreenScale.y, Color{255, 0, 0, 255});
+        dta1.draw();
 
         EndDrawing();
     }
