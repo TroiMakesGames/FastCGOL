@@ -37,6 +37,12 @@ def TxtToCSV(csvName, shouldAccumulate, prefix):
         instanceData = []
         #get language, logic and size
         nameData = file.split("_")
+        
+        #replace "" with "None"
+        for i in range(len(nameData)):
+            if nameData[i] == "":
+                nameData[i] = "None"
+
         for dt in nameData:
             if dt != prefix:    #dont store prefix
                 instanceData.append(dt)
@@ -46,12 +52,16 @@ def TxtToCSV(csvName, shouldAccumulate, prefix):
         with open(file, "r", encoding="utf-8") as file:
             contents = file.read().splitlines()
 
+        #round to 4 decimals
+        for i in range(len(contents)):
+            contents[i] = round(float(contents[i]), 4)
+
         #accumulate if neccesary
         if shouldAccumulate:
             accumulated = []
             currAccum = 0
             for content in contents:
-                currAccum += float(content.replace(",", "."))
+                currAccum += content
                 accumulated.append(currAccum)
 
             #replace periter data with accumulated

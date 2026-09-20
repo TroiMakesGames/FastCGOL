@@ -12,6 +12,8 @@
 #include <string>
 #include <algorithm>
 
+#include <cctype>
+
 //include personal external tools
 #include "DynamicCam.h"
 
@@ -26,25 +28,64 @@ std::string readCSV_line(std::string csvPath, int lineIndex)
     std::string line;
     for (int i = 0; i <= lineIndex; ++i)
     {std::getline(file, line);}
-    
-    std::replace(line.begin(), line.end(), ',', ' ');
 
     return line;
 }
 
-std::vector<float> stringToFloatVector(std::string str) {
+std::vector<std::string> parseCSV_line(const std::string& line)
+{
+    std::vector<std::string> fields;
+    std::string current;
+    bool insideQuotes = false;
+
+    for (char c : line)
+    {
+        if (c == '"')
+        {
+            insideQuotes = !insideQuotes;
+        }
+        else if (c == ',' && !insideQuotes)
+        {
+            fields.push_back(current);
+            current.clear();
+        }
+        else
+        {
+            current += c;
+        }
+    }
+
+    fields.push_back(current);
+
+    return fields;
+}
+
+std::vector<float> stringToFloatVector(std::string str)
+{
     std::vector<float> numbers;
 
-    str = str.substr(1, str.size() - 2); // remove [ ]
+    // Remove whitespace around the string
+    str.erase(
+        std::remove_if(str.begin(), str.end(), ::isspace),
+        str.end()
+    );
+
+    // Remove [ ]
+    if (!str.empty() && str.front() == '[')
+        str.erase(str.begin());
+
+    if (!str.empty() && str.back() == ']')
+        str.pop_back();
 
     std::stringstream ss(str);
     std::string value;
 
-    while (std::getline(ss, value, ',')) {
-        value.erase(0, value.find_first_not_of(" '"));
-        value.erase(value.find_last_not_of(" '") + 1);
-
-        numbers.push_back(std::stof(value));
+    while (std::getline(ss, value, ','))
+    {
+        if (!value.empty())
+        {
+            numbers.push_back(std::stof(value));
+        }
     }
 
     return numbers;
@@ -61,27 +102,26 @@ class DataInstance
         std::string sizeTag;
 
         std::vector<float> timeData;
-        std::vector<Vector2> points[10000];
+        std::vector<Vector2> points;
 
     public:
     DataInstance(std::string rawData) {
         rawContent = rawData;
 
-        //parse raw data into tags
-        std::stringstream ss(rawContent);
-        std::string word;
-        std::vector<std::string> parts;
-        while (ss >> word) {
-            parts.push_back(word);
-        }
+        //resize points to proper size
+        points.resize(10000);
+
+        //parse raw content
+        std::vector<std::string> parsedCSV = parseCSV_line(rawContent);
 
         //    "data" = parts[0];
-        languageTag = parts[1];
-        logicTag = parts[2];
-        attributeTag = parts[3];
-        sizeTag = parts[4];
-        //    "simulation iteration" = parts[5]:
-        timeData = stringToFloatVector(parts[6]);
+        languageTag = parsedCSV[0];
+        logicTag = parsedCSV[1];
+        attributeTag = parsedCSV[2];
+        sizeTag = parsedCSV[3];
+        //    "simulation iteration" = parts[4]:
+
+        timeData = stringToFloatVector(parsedCSV[5]);
 
         //get language name from tag
         if (languageTag == "pp")
@@ -96,16 +136,16 @@ class DataInstance
 
     void recalculatePoints(int graphWidth, int graphHeight, float maxTimeData)
     {
-        float widthPerIndex = graphWidth / 10000;
-        float yPerTimeUnit = graphHeight / maxTimeData;
+        float widthPerIndex = graphWidth / 10000.0f;
+        float yPerTimeUnit = graphHeight / maxTimeData * -1;
 
         for (int i = 0; i < timeData.size() - 1; i++)
         {points[i] = {widthPerIndex * i, yPerTimeUnit * timeData[i]};}
     }
 
-    void draw()
+    void draw(Viewport viewport, Color lineColor)
     {
-        for (int i = 0; i < points.size() - 1; i++)
+        for (int i = 0; i < points.size() - 2; i++)
         {
             //get curr and next point
             Vector2 p1 = points[i];
@@ -115,7 +155,7 @@ class DataInstance
             p1 = viewport.worldToScreenPos(p1);
             p2 = viewport.worldToScreenPos(p2);
 
-            DrawLine(p1.x, p1.y, p.x, p2.y, RED);
+            DrawLine(p1.x, p1.y, p2.x, p2.y, lineColor);
         }
     }
 };
@@ -132,13 +172,16 @@ int main()
     SetTargetFPS(targetFps);
 
     //variable initialisation
-    Viewport viewport = Viewport(Vector2(0, 0), 10, 0.05f, 0.05f, 5);
+    Viewport viewport = Viewport(Vector2(800, -400), 10, 0.05f, 0.05f, 5);
 
     DataInstance dta1 = DataInstance(readCSV_line("../../Data_V1.2/csv_periter.csv", 0));
-    dta1.recalculatePoints(800, 400, *std::max_element(dta1.timeData.begin(), dta1.timeData.end()));
+    dta1.recalculatePoints(1600, 800, *std::max_element(dta1.timeData.begin(), dta1.timeData.end()));
+
+    DataInstance dta2 = DataInstance(readCSV_line("../../Data_V1.2/csv_periter.csv", 1));
+    dta2.recalculatePoints(1600, 800, *std::max_element(dta2.timeData.begin(), dta2.timeData.end()));
 
     //adjust viewport zoom so that on start it doesnt draw cells too large
-    viewport.zoom = 0.35f;
+    viewport.zoom = 0.9f;
 
     //while loop
     while (!WindowShouldClose())
@@ -151,7 +194,8 @@ int main()
         BeginDrawing();
         ClearBackground(Color{30, 30, 30, 255});
 
-        dta1.draw();
+        dta1.draw(viewport,  {255, 0, 0, 255});
+        dta2.draw(viewport,  {0, 0, 255, 255});
 
         EndDrawing();
     }
