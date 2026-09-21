@@ -174,11 +174,28 @@ int main()
     //variable initialisation
     Viewport viewport = Viewport(Vector2(800, -400), 10, 0.05f, 0.05f, 5);
 
-    DataInstance dta1 = DataInstance(readCSV_line("../../Data_V1.2/csv_periter.csv", 0));
-    dta1.recalculatePoints(1600, 800, *std::max_element(dta1.timeData.begin(), dta1.timeData.end()));
+    int numOfInstances = 48;
+    std::string pathToCSV = "../../Data_V1.2/csv_accumulated.csv";
 
-    DataInstance dta2 = DataInstance(readCSV_line("../../Data_V1.2/csv_periter.csv", 1));
-    dta2.recalculatePoints(1600, 800, *std::max_element(dta2.timeData.begin(), dta2.timeData.end()));
+    std::vector<DataInstance> dataInstances;
+    dataInstances.reserve(numOfInstances);
+
+    for (int i = 0; i < numOfInstances; i++)
+    {
+        DataInstance dta = DataInstance(readCSV_line(pathToCSV, i));
+        //add to the array
+        dataInstances.emplace_back(std::move(dta));
+    }
+
+    //calculate points with global maximum
+    int globalMax = 0;
+    for (int i = 0; i < numOfInstances; i++)
+    {
+        int currMax = *std::max_element(dataInstances[i].timeData.begin(), dataInstances[i].timeData.end());
+        if (currMax > globalMax) {globalMax = currMax;}
+    }
+    for (int i = 0; i < numOfInstances; i++)
+    {dataInstances[i].recalculatePoints(1600, 800, globalMax);}
 
     //adjust viewport zoom so that on start it doesnt draw cells too large
     viewport.zoom = 0.9f;
@@ -194,8 +211,10 @@ int main()
         BeginDrawing();
         ClearBackground(Color{30, 30, 30, 255});
 
-        dta1.draw(viewport,  {255, 0, 0, 255});
-        dta2.draw(viewport,  {0, 0, 255, 255});
+        for (int i = 0; i < numOfInstances; i++)
+        {
+            dataInstances[i].draw(viewport,  {255, 0, 0, 255});
+        }
 
         EndDrawing();
     }
