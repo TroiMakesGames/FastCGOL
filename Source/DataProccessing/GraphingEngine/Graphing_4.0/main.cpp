@@ -271,8 +271,14 @@ int main()
         }
     }
 
+    //graph scaling
+    bool hasScaled = false;
+    int graphWidth = 1600;
+    int graphHeight = 800;
+    float scaleFactor = 0.9f;
+
     for (int i = 0; i < numOfInstances; i++)
-    {dataInstances[i].recalculatePoints(1600, 800, globalMaxAverage, groupingResolution);}
+    {dataInstances[i].recalculatePoints(graphWidth, graphHeight, globalMaxAverage, groupingResolution);}
 
     //adjust viewport zoom so that on start it doesnt draw cells too large
     viewport.zoom = 0.9f;
@@ -282,16 +288,49 @@ int main()
     {
         //update
         viewport.move(GetFrameTime());
-        viewport.zoomCamera();
+        if (!IsKeyDown(KEY_LEFT_SHIFT) && !IsKeyDown(KEY_RIGHT_SHIFT) && !IsKeyDown(KEY_LEFT_CONTROL) && !IsKeyDown(KEY_RIGHT_CONTROL))
+        {viewport.zoomCamera();}
+
+        //graph zoom
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT))
+        {
+            float wheel = GetMouseWheelMove();
+            if (wheel != 0)
+            {
+                if (wheel > 0)
+                {graphWidth *= scaleFactor;}
+                else
+                {graphWidth *= 1 + 1 -scaleFactor;}
+                hasScaled = true;
+            }
+        }
+        if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL))
+        {
+            float wheel = GetMouseWheelMove();
+            if (wheel != 0)
+            {
+                if (wheel > 0)
+                {graphHeight *= scaleFactor;}
+                else
+                {graphHeight *= 1 + 1 -scaleFactor;}
+                hasScaled = true;
+            }
+        }
+
+        if (hasScaled)
+        {
+            for (int i = 0; i < numOfInstances; i++)
+            {dataInstances[i].recalculatePoints(graphWidth, graphHeight, globalMaxAverage, groupingResolution);}
+
+            hasScaled = false;
+        }
 
         // draw
         BeginDrawing();
         ClearBackground(Color{30, 30, 30, 255});
 
         for (int i = 0; i < numOfInstances; i++)
-        {
-            dataInstances[i].draw(viewport);
-        }
+        {dataInstances[i].draw(viewport);}
 
         EndDrawing();
     }
