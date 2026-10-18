@@ -1,0 +1,67 @@
+-- individual by avarage at 400 + proper naming ------------------------
+SELECT
+    s.simulation_id,
+    CASE framework
+        WHEN 'cr' THEN 'C++ Raylib'
+        WHEN 'pp' THEN 'Python Pygame'
+		WHEN 'js' THEN 'JavaScript HTML (Chrome)'
+		WHEN 'cs' THEN 'C# OpenTK (openGL)'
+        ELSE framework
+    END AS framework_name,
+    s.logical_optimization,
+	s.logic_variant,
+    s.world_size,
+    AVG(m.time_ms) AS avg_generation_ms
+FROM simulations AS s
+
+JOIN generation_measurements AS m
+    ON s.simulation_id = m.simulation_id
+	
+WHERE m.measurement_type = 'individual' AND s.world_size = "400"
+
+GROUP BY
+    s.simulation_id,
+    s.framework,
+    s.logical_optimization,
+	s.logic_variant,
+    s.world_size
+	
+ORDER BY avg_generation_ms ASC;
+
+-- accumulated by max required (total time) at 1600 + proper naming + no id display + proper time format ------------------------
+SELECT
+    -- s.simulation_id,
+    CASE framework
+        WHEN 'cr' THEN 'C++ Raylib'
+        WHEN 'pp' THEN 'Python Pygame'
+		WHEN 'js' THEN 'JavaScript HTML (Chrome)'
+		WHEN 'cs' THEN 'C# OpenTK (openGL)'
+        ELSE framework
+    END AS framework_name,
+    s.logical_optimization,
+	s.logic_variant,
+    s.world_size,
+	
+    MAX(m.time_ms) AS total_simulation_time,
+	printf('%02d:%02d:%02d.%03d',
+        CAST(MAX(m.time_ms) / 3600000 AS INTEGER),
+        CAST(MAX(m.time_ms) / 60000 AS INTEGER) % 60,
+        CAST(MAX(m.time_ms) / 1000 AS INTEGER) % 60,
+        CAST(MAX(m.time_ms) AS INTEGER) % 1000
+    ) AS total_simulation_time_formated
+	
+FROM simulations AS s
+
+JOIN generation_measurements AS m
+    ON s.simulation_id = m.simulation_id
+	
+WHERE m.measurement_type = 'accumulated' AND s.world_size = "1600"
+
+GROUP BY
+    s.simulation_id,
+    s.framework,
+    s.logical_optimization,
+	s.logic_variant,
+    s.world_size
+	
+ORDER BY total_simulation_time ASC;
